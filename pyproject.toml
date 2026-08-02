@@ -35,13 +35,13 @@ select = [
 python_version = "3.12"
 strict = true
 mypy_path = "src"
-packages = ["bac_generator"]
+explicit_package_bases = true
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "pytest-asyncio",
-    "httpx",
+    "httpx2",
     "ruff",
     "mypy",
 ]
