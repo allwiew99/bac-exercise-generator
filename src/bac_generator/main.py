@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 
+from bac_generator.api.routes.health import router
 from bac_generator.core.config import settings
 
-app = FastAPI( 
+app = FastAPI(
     title=settings.app_name,
     debug=settings.debug,
-      )
+)
 
-
-@app.get("/health")
-def health_check() -> dict[str, str]:
-    return {"status": "ok"}
+app.include_router(router)
