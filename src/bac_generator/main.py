@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="Bac Exercise Generator API")
+from bac_generator.core.config import settings
+
+app = FastAPI( 
+    title=settings.app_name,
+    debug=settings.debug,
+      )
 
 
 @app.get("/health")
