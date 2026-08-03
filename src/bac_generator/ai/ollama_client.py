@@ -14,6 +14,8 @@ class OllamaClient:
         self.client = Client(host=base_url)
 
     def generate_exercise(self, prompt: str) -> ExerciseResponse:
+        schema = ExerciseResponse.model_json_schema()
+
         response = self.client.chat(
             model=self.model,
             messages=[
@@ -22,7 +24,8 @@ class OllamaClient:
                     "content": prompt,
                 }
             ],
-            format=ExerciseResponse.model_json_schema(),
+            format=schema,
+            think=False,
             options={
                 "temperature": 0,
             },
@@ -30,7 +33,11 @@ class OllamaClient:
 
         content = response.message.content
 
-        if content is None:
+        if content is None or not content.strip():
             raise ValueError("Ollama returned an empty response.")
+
+        print("\nOLLAMA RAW CONTENT:")
+        print(repr(content))
+        print()
 
         return ExerciseResponse.model_validate_json(content)
