@@ -1,16 +1,17 @@
+from bac_generator.ai.llm_client import LLMClient
+from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
 
 
 class ExerciseService:
+    def __init__(
+        self,
+        prompt_builder: PromptBuilder,
+        llm_client: LLMClient,
+    ) -> None:
+        self.prompt_builder = prompt_builder
+        self.llm_client = llm_client
+
     def generate(self, request: ExerciseRequest) -> ExerciseResponse:
-        return ExerciseResponse(
-            topic=request.topic,
-            difficulty=request.difficulty,
-            statement=(
-                f"Se citește un {request.topic}. "
-                f"Determină o soluție pentru o problemă de dificultate "
-                f"{request.difficulty}."
-            ),
-            solution="Aceasta este soluția problemei.",
-            explanation="Aceasta este explicația problemei.",
-        )
+        prompt = self.prompt_builder.build_exercise_prompt(request)
+        return self.llm_client.generate_exercise(prompt)

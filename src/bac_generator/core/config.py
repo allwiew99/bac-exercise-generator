@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     app_name: str = "Bac Exercise Generator API"
     debug: bool = False
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen3.5:9b"
 
 
 settings = Settings()

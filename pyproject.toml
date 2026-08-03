@@ -10,6 +10,7 @@ dependencies = [
     "sqlalchemy",
     "alembic",
     "asyncpg",
+    "ollama",
 ]
 
 [tool.pytest.ini_options]
