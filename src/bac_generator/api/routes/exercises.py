@@ -6,7 +6,9 @@ from bac_generator.ai.ollama_client import OllamaClient
 from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.core.config import settings
 from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
+from bac_generator.services.code_validator import CodeValidator
 from bac_generator.services.exercise_service import ExerciseService
+from bac_generator.services.exercise_validator import ExerciseValidator
 
 router = APIRouter(
     prefix="/exercises",
@@ -24,6 +26,17 @@ def get_ollama_client() -> OllamaClient:
         model=settings.ollama_model,
     )
 
+def get_code_validator() -> CodeValidator:
+    return CodeValidator()
+
+def get_exercise_validator(
+    code_validator: Annotated[
+        CodeValidator,
+        Depends(get_code_validator),
+    ],
+) -> ExerciseValidator:
+    return ExerciseValidator(code_validator)
+
 def get_exercise_service(
     prompt_builder: Annotated[
         PromptBuilder,
@@ -33,10 +46,15 @@ def get_exercise_service(
         OllamaClient,
         Depends(get_ollama_client),
     ],
+    validator: Annotated[
+        ExerciseValidator,
+        Depends(get_exercise_validator),
+    ],
 ) -> ExerciseService:
     return ExerciseService(
         prompt_builder=prompt_builder,
         llm_client=ollama_client,
+        validator=validator,
     )
 
 

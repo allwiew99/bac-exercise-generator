@@ -3,8 +3,17 @@ from fastapi.testclient import TestClient
 from bac_generator.api.routes.exercises import get_ollama_client
 from bac_generator.main import app
 from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
+from bac_generator.api.routes.exercises import (
+    get_code_validator,
+    get_ollama_client,
+)
 
 client = TestClient(app)
+
+
+class FakeCodeValidator:
+    def validate_cpp(self, code: str) -> None:
+        pass
 
 
 class FakeOllamaClient:
@@ -20,6 +29,7 @@ class FakeOllamaClient:
 
 def test_generate_exercise_returns_valid_response() -> None:
     app.dependency_overrides[get_ollama_client] = FakeOllamaClient
+    app.dependency_overrides[get_code_validator] = FakeCodeValidator
 
     try:
         response = client.post(
