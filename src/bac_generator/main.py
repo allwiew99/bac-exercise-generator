@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
-from bac_generator.api.routes.health import router
+from bac_generator.api.routes.exercises import router as exercises_router
+from bac_generator.api.routes.health import router as health_router
 from bac_generator.core.config import settings
 
 app = FastAPI(
@@ -8,4 +9,5 @@ app = FastAPI(
     debug=settings.debug,
 )
 
-app.include_router(router)
+app.include_router(exercises_router)
+app.include_router(health_router)
