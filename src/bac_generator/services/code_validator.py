@@ -2,11 +2,13 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from bac_generator.core.exceptions import CodeCompilationError
+
 
 class CodeValidator:
     def validate_cpp(self, code: str) -> None:
         if not code.strip():
-            raise ValueError("Code cannot be empty.")
+            raise CodeCompilationError("Code cannot be empty.")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             source_path = Path(temp_dir) / "main.cpp"
@@ -28,4 +30,6 @@ class CodeValidator:
             )
 
             if result.returncode != 0:
-                raise ValueError(f"Compilation failed: {result.stderr}")
+                raise CodeCompilationError(
+                    f"Compilation failed:\n{result.stderr.strip()}"
+                )

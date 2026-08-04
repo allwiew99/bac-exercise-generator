@@ -1,6 +1,7 @@
 import pytest
 
 from bac_generator.ai.prompt_builder import PromptBuilder
+from bac_generator.core.exceptions import ExerciseValidationError
 from bac_generator.schemas.exercise import (
     Difficulty,
     ExerciseRequest,
@@ -72,7 +73,7 @@ def test_generate_rejects_exercise_with_mismatched_topic() -> None:
     )
 
     with pytest.raises(
-        ValueError,
+        ExerciseValidationError,
         match="does not match requested topic",
     ):
         service.generate(request)

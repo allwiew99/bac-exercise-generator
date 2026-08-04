@@ -1,12 +1,12 @@
 import pytest
 
+from bac_generator.core.exceptions import ExerciseValidationError
 from bac_generator.schemas.exercise import (
     Difficulty,
     ExerciseRequest,
     ExerciseResponse,
 )
 from bac_generator.services.exercise_validator import ExerciseValidator
-from bac_generator.services.code_validator import CodeValidator 
 
 
 class FakeCodeValidator:
@@ -51,7 +51,7 @@ def test_validate_rejects_mismatched_topic() -> None:
     )
 
     with pytest.raises(
-        ValueError,
+        ExerciseValidationError,
         match="does not match requested topic",
     ):
         validator.validate(request, exercise)
@@ -75,7 +75,7 @@ def test_validate_rejects_mismatched_difficulty() -> None:
     )
 
     with pytest.raises(
-        ValueError,
+        ExerciseValidationError,
         match="does not match requested difficulty",
     ):
         validator.validate(request, exercise)
@@ -99,7 +99,7 @@ def test_validate_rejects_empty_statement() -> None:
     )
 
     with pytest.raises(
-        ValueError,
+        ExerciseValidationError,
         match="must not be empty",
     ):
         validator.validate(request, exercise)

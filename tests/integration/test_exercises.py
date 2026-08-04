@@ -1,12 +1,11 @@
 from fastapi.testclient import TestClient
 
-from bac_generator.api.routes.exercises import get_ollama_client
-from bac_generator.main import app
-from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
 from bac_generator.api.routes.exercises import (
     get_code_validator,
     get_ollama_client,
 )
+from bac_generator.main import app
+from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
 
 client = TestClient(app)
 
