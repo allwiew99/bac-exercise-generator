@@ -1,9 +1,13 @@
+import logging
+
 from bac_generator.core.exceptions import (
     CodeCompilationError,
     ExerciseValidationError,
 )
 from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
 from bac_generator.services.code_validator_protocol import CodeValidatorProtocol
+
+logger = logging.getLogger(__name__)
 
 
 class ExerciseValidator:
@@ -15,6 +19,13 @@ class ExerciseValidator:
         request: ExerciseRequest,
         exercise: ExerciseResponse,
     ) -> None:
+        logger.info(
+            "Starting exercise validation for topic '%s' "
+            "with difficulty '%s'.",
+            request.topic,
+            request.difficulty,
+        )
+
         if request.topic != exercise.topic:
             raise ExerciseValidationError(
                 f"Exercise topic '{exercise.topic}' does not match "
@@ -42,3 +53,10 @@ class ExerciseValidator:
             raise ExerciseValidationError(
                 f"Invalid exercise solution: {exc}"
             ) from exc
+
+        logger.info(
+            "Exercise validation completed successfully for topic '%s' "
+            "with difficulty '%s'.",
+            exercise.topic,
+            exercise.difficulty,
+        )

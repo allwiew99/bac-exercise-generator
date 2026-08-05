@@ -1,6 +1,5 @@
 import logging
 
-
 from bac_generator.ai.llm_client import LLMClient
 from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
