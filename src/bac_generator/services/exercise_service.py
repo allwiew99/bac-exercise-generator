@@ -2,6 +2,11 @@ import logging
 
 from bac_generator.ai.llm_client import LLMClient
 from bac_generator.ai.prompt_builder import PromptBuilder
+from bac_generator.core.config import settings
+from bac_generator.core.exceptions import (
+    ExerciseValidationError,
+    LLMResponseError,
+)
 from bac_generator.db.models.exercise import Exercise
 from bac_generator.repositories.exercise_repository_protocol import (
     ExerciseRepositoryProtocol,
@@ -25,19 +30,50 @@ class ExerciseService:
         self.validator = validator
         self.repository = repository
 
-    async def generate(self, request: ExerciseRequest) -> ExerciseResponse:
+    async def generate(
+        self,
+        request: ExerciseRequest,
+    ) -> ExerciseResponse:
         logger.info(
             "Generating exercise for topic '%s' with difficulty '%s'.",
             request.topic,
             request.difficulty,
         )
-        prompt = self.prompt_builder.build_exercise_prompt(request)
-        exercise = self.llm_client.generate_exercise(prompt)
 
-        self.validator.validate(request, exercise)
-        await self.repository.create(exercise)
-        logger.info("Exercise generated successfully")
-        return exercise
+        prompt = self.prompt_builder.build_exercise_prompt(request)
+
+        for attempt in range(settings.llm_max_attempts):
+            attempt_number = attempt + 1
+
+            try:
+                exercise = self.llm_client.generate_exercise(prompt)
+                self.validator.validate(request, exercise)
+            except (ExerciseValidationError, LLMResponseError) as exc:
+                is_last_attempt = attempt_number == settings.llm_max_attempts
+
+                if is_last_attempt:
+                    raise
+
+                logger.warning(
+                    "Exercise generation attempt %d of %d failed: %s",
+                    attempt_number,
+                    settings.llm_max_attempts,
+                    exc,
+                )
+
+                continue
+
+                await self.repository.create(exercise)
+
+            logger.info(
+                "Exercise generated successfully on attempt %d.",
+                attempt_number,
+            )
+
+            return exercise
+
+        raise RuntimeError("Exercise generation loop ended unexpectedly.")
+
 
     async def list_exercises(self) -> list[Exercise]:
         logger.info("Listing all exercises.")

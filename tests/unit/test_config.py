@@ -18,3 +18,4 @@ def test_settings_defaults(
     assert settings.database_url == (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
     )
+    assert settings.llm_max_attempts == 3

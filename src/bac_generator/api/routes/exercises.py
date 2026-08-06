@@ -108,10 +108,7 @@ async def list_exercises(
 ) -> list[ExerciseRead]:
     exercises = await service.list_exercises()
 
-    return [
-        ExerciseRead.model_validate(exercise)
-        for exercise in exercises
-    ]
+    return [ExerciseRead.model_validate(exercise) for exercise in exercises]
 
 
 @router.get(
@@ -131,8 +128,6 @@ async def get_exercise_by_id(
         raise HTTPException(
             status_code=404,
             detail="Exercise not found.",
-    )
+        )
 
     return ExerciseRead.model_validate(exercise)
-
-    

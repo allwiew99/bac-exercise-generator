@@ -32,27 +32,45 @@ class FakeExerciseRepository:
             solution=exercise_data.solution,
             explanation=exercise_data.explanation,
         )
+
     async def list(self) -> list[Exercise]:
         return [
-        Exercise(
-            id=1,
-            topic="vectori",
-            difficulty="medium",
-            statement="Enunț 1.",
-            solution="Soluție 1.",
-            explanation="Explicație 1.",
-            created_at=datetime.now(UTC),
-        ),
-        Exercise(
-            id=2,
-            topic="matrici",
-            difficulty="hard",
-            statement="Enunț 2.",
-            solution="Soluție 2.",
-            explanation="Explicație 2.",
-            created_at=datetime.now(UTC),
-        ),
-    ]
+            Exercise(
+                id=1,
+                topic="vectori",
+                difficulty="medium",
+                statement="Enunț 1.",
+                solution="Soluție 1.",
+                explanation="Explicație 1.",
+                created_at=datetime.now(UTC),
+            ),
+            Exercise(
+                id=2,
+                topic="matrici",
+                difficulty="hard",
+                statement="Enunț 2.",
+                solution="Soluție 2.",
+                explanation="Explicație 2.",
+                created_at=datetime.now(UTC),
+            ),
+        ]
+
+    async def get_by_id(
+        self,
+        exercise_id: int,
+    ) -> Exercise | None:
+        if exercise_id == 1:
+            return Exercise(
+                id=1,
+                topic="vectori",
+                difficulty="medium",
+                statement="Enunț 1.",
+                solution="Soluție 1.",
+                explanation="Explicație 1.",
+                created_at=datetime.now(UTC),
+            )
+
+        return None
 
 
 class FakeExerciseGenerationErrorClient:
@@ -198,5 +216,37 @@ def test_list_exercises_returns_exercises() -> None:
         assert body[1]["id"] == 2
         assert body[1]["topic"] == "matrici"
         assert body[1]["difficulty"] == "hard"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_get_exercise_by_id_returns_existing_exercise() -> None:
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
+
+    try:
+        response = client.get("/exercises/1")
+
+        body = response.json()
+
+        assert response.status_code == 200
+        assert body["id"] == 1
+        assert body["topic"] == "vectori"
+        assert body["difficulty"] == "medium"
+
+        assert "created_at" in body
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_get_exercise_by_id_returns_404_for_missing_exercise() -> None:
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
+
+    try:
+        response = client.get("/exercises/999999")
+
+        body = response.json()
+
+        assert response.status_code == 404
+        assert body["detail"] == "Exercise not found."
     finally:
         app.dependency_overrides.clear()
