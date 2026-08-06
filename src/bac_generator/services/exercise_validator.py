@@ -20,8 +20,7 @@ class ExerciseValidator:
         exercise: ExerciseResponse,
     ) -> None:
         logger.info(
-            "Starting exercise validation for topic '%s' "
-            "with difficulty '%s'.",
+            "Starting exercise validation for topic '%s' with difficulty '%s'.",
             request.topic,
             request.difficulty,
         )
@@ -50,13 +49,10 @@ class ExerciseValidator:
         try:
             self.code_validator.validate_cpp(exercise.solution)
         except CodeCompilationError as exc:
-            raise ExerciseValidationError(
-                f"Invalid exercise solution: {exc}"
-            ) from exc
+            raise ExerciseValidationError(f"Invalid exercise solution: {exc}") from exc
 
         logger.info(
-            "Exercise validation completed successfully for topic '%s' "
-            "with difficulty '%s'.",
+            "Exercise validation completed successfully for topic '%s' with difficulty '%s'.",
             exercise.topic,
             exercise.difficulty,
         )

@@ -2,6 +2,7 @@ import pytest
 
 from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.core.exceptions import ExerciseValidationError
+from bac_generator.db.models import Exercise
 from bac_generator.schemas.exercise import (
     Difficulty,
     ExerciseRequest,
@@ -14,6 +15,20 @@ from bac_generator.services.exercise_validator import ExerciseValidator
 class FakeCodeValidator:
     def validate_cpp(self, code: str) -> None:
         pass
+
+
+class FakeExerciseRepository:
+    async def create(
+        self,
+        exercise_data: ExerciseResponse,
+    ) -> Exercise:
+        return Exercise(
+            topic=exercise_data.topic,
+            difficulty=exercise_data.difficulty,
+            statement=exercise_data.statement,
+            solution=exercise_data.solution,
+            explanation=exercise_data.explanation,
+        )
 
 
 class FakeOllamaClient:
@@ -38,11 +53,12 @@ class FakeInvalidTopicLLMClient:
         )
 
 
-def test_generate_returns_exercise_response() -> None:
+async def test_generate_returns_exercise_response() -> None:
     service = ExerciseService(
         prompt_builder=PromptBuilder(),
         llm_client=FakeOllamaClient(),
         validator=ExerciseValidator(FakeCodeValidator()),
+        repository=FakeExerciseRepository(),
     )
 
     request = ExerciseRequest(
@@ -50,7 +66,7 @@ def test_generate_returns_exercise_response() -> None:
         difficulty=Difficulty.MEDIUM,
     )
 
-    response = service.generate(request)
+    response = await service.generate(request)
 
     assert isinstance(response, ExerciseResponse)
     assert response.topic == "vectori"
@@ -60,11 +76,12 @@ def test_generate_returns_exercise_response() -> None:
     assert response.explanation
 
 
-def test_generate_rejects_exercise_with_mismatched_topic() -> None:
+async def test_generate_rejects_exercise_with_mismatched_topic() -> None:
     service = ExerciseService(
         prompt_builder=PromptBuilder(),
         llm_client=FakeInvalidTopicLLMClient(),
         validator=ExerciseValidator(FakeCodeValidator()),
+        repository=FakeExerciseRepository(),
     )
 
     request = ExerciseRequest(
@@ -76,4 +93,4 @@ def test_generate_rejects_exercise_with_mismatched_topic() -> None:
         ExerciseValidationError,
         match="does not match requested topic",
     ):
-        service.generate(request)
+        await service.generate(request)

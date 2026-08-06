@@ -1,10 +1,13 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from bac_generator.ai.ollama_client import OllamaClient
 from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.core.config import settings
+from bac_generator.db.session import get_db_session
+from bac_generator.repositories.exercise_repository import ExerciseRepository
 from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
 from bac_generator.services.code_validator import CodeValidator
 from bac_generator.services.exercise_service import ExerciseService
@@ -26,8 +29,10 @@ def get_ollama_client() -> OllamaClient:
         model=settings.ollama_model,
     )
 
+
 def get_code_validator() -> CodeValidator:
     return CodeValidator()
+
 
 def get_exercise_validator(
     code_validator: Annotated[
@@ -36,6 +41,16 @@ def get_exercise_validator(
     ],
 ) -> ExerciseValidator:
     return ExerciseValidator(code_validator)
+
+
+def get_exercise_repository(
+    session: Annotated[
+        AsyncSession,
+        Depends(get_db_session),
+    ],
+) -> ExerciseRepository:
+    return ExerciseRepository(session)
+
 
 def get_exercise_service(
     prompt_builder: Annotated[
@@ -50,11 +65,16 @@ def get_exercise_service(
         ExerciseValidator,
         Depends(get_exercise_validator),
     ],
+    repository: Annotated[
+        ExerciseRepository,
+        Depends(get_exercise_repository),
+    ],
 ) -> ExerciseService:
     return ExerciseService(
         prompt_builder=prompt_builder,
         llm_client=ollama_client,
         validator=validator,
+        repository=repository,
     )
 
 
@@ -62,11 +82,11 @@ def get_exercise_service(
     "/generate",
     response_model=ExerciseResponse,
 )
-def generate_exercise(
+async def generate_exercise(
     request: ExerciseRequest,
     service: Annotated[
         ExerciseService,
         Depends(get_exercise_service),
     ],
 ) -> ExerciseResponse:
-    return service.generate(request)
+    return await service.generate(request)

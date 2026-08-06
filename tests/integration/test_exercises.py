@@ -2,9 +2,11 @@ from fastapi.testclient import TestClient
 
 from bac_generator.api.routes.exercises import (
     get_code_validator,
+    get_exercise_repository,
     get_ollama_client,
 )
 from bac_generator.core.exceptions import ExerciseGenerationError, LLMResponseError
+from bac_generator.db.models import Exercise
 from bac_generator.main import app
 from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
 
@@ -16,11 +18,25 @@ class FakeCodeValidator:
         pass
 
 
+class FakeExerciseRepository:
+    async def create(
+        self,
+        exercise_data: ExerciseResponse,
+    ) -> Exercise:
+        return Exercise(
+            topic=exercise_data.topic,
+            difficulty=exercise_data.difficulty,
+            statement=exercise_data.statement,
+            solution=exercise_data.solution,
+            explanation=exercise_data.explanation,
+        )
+
+
 class FakeExerciseGenerationErrorClient:
     def generate_exercise(self, prompt: str) -> ExerciseResponse:
         raise ExerciseGenerationError("Failed to generate exercise.")
 
-    
+
 class FakeLLMResponseErrorClient:
     def generate_exercise(self, prompt: str) -> ExerciseResponse:
         raise LLMResponseError("Invalid response from LLM.")
@@ -68,6 +84,7 @@ def test_generate_exercise_returns_exercise_generation_error() -> None:
     finally:
         app.dependency_overrides.clear()
 
+
 def test_generate_exercise_returns_llm_response_error() -> None:
     app.dependency_overrides[get_ollama_client] = FakeLLMResponseErrorClient
 
@@ -87,6 +104,7 @@ def test_generate_exercise_returns_llm_response_error() -> None:
         assert "Invalid response from LLM." in body["detail"]
     finally:
         app.dependency_overrides.clear()
+
 
 def test_generate_exercise_returns_validation_error() -> None:
     app.dependency_overrides[get_ollama_client] = FakeInvalidTopicLLMClient
@@ -109,9 +127,11 @@ def test_generate_exercise_returns_validation_error() -> None:
     finally:
         app.dependency_overrides.clear()
 
+
 def test_generate_exercise_returns_valid_response() -> None:
     app.dependency_overrides[get_ollama_client] = FakeOllamaClient
     app.dependency_overrides[get_code_validator] = FakeCodeValidator
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
 
     try:
         response = client.post(

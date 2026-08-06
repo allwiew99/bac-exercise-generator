@@ -16,5 +16,5 @@ def test_settings_defaults(
     assert settings.app_name == "Bac Exercise Generator API"
     assert settings.debug is False
     assert settings.database_url == (
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
     )

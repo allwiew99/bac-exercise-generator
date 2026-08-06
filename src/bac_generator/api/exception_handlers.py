@@ -21,7 +21,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "detail": str(exc),
             },
         )
-    
+
     @app.exception_handler(CodeCompilationError)
     async def code_compilation_exception_handler(
         _request: Request, exc: CodeCompilationError
@@ -33,7 +33,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "detail": str(exc),
             },
         )
-    
+
     @app.exception_handler(LLMResponseError)
     async def llm_response_exception_handler(
         _request: Request, exc: LLMResponseError
@@ -56,4 +56,4 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "error": "exercise_generation_error",
                 "detail": str(exc),
             },
-        )   
+        )

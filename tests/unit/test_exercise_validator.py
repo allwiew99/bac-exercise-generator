@@ -13,6 +13,7 @@ class FakeCodeValidator:
     def validate_cpp(self, code: str) -> None:
         pass
 
+
 def test_validate_accepts_valid_exercise() -> None:
     code_validator = FakeCodeValidator()
     validator = ExerciseValidator(code_validator)

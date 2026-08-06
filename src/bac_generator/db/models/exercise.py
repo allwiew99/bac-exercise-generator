@@ -16,13 +16,13 @@ class Exercise(Base):
 
     topic: Mapped[str] = mapped_column(
         String(255),
-        nullable=False, 
+        nullable=False,
     )
 
     difficulty: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-    )   
+    )
 
     statement: Mapped[str] = mapped_column(
         Text,

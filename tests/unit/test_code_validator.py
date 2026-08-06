@@ -34,6 +34,7 @@ int main() {
 """
     )
 
+
 def test_validate_cpp_rejects_empty_code() -> None:
     code_validator = CodeValidator()
 
@@ -41,4 +42,4 @@ def test_validate_cpp_rejects_empty_code() -> None:
         CodeCompilationError,
         match="Code cannot be empty",
     ):
-        code_validator.validate_cpp("   ")    
+        code_validator.validate_cpp("   ")

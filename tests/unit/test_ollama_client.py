@@ -35,6 +35,7 @@ def test_generate_exercise_returns_validated_response() -> None:
     assert result.solution == "Soluție de test."
     assert result.explanation == "Explicație de test."
 
+
 def test_generate_exercise_rejects_empty_content() -> None:
     ollama_client = OllamaClient(
         base_url="http://localhost:11434",

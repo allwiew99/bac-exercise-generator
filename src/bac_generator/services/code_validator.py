@@ -43,8 +43,6 @@ class CodeValidator:
                     error_message,
                 )
 
-                raise CodeCompilationError(
-                    f"Compilation failed:\n{error_message}"
-                )
+                raise CodeCompilationError(f"Compilation failed:\n{error_message}")
 
             logger.info("C++ code compiled successfully.")
