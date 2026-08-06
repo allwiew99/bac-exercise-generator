@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bac_generator.db.models import Exercise
@@ -24,3 +25,11 @@ class ExerciseRepository:
         await self.session.commit()
         await self.session.refresh(exercise)
         return exercise
+
+    async def get_by_id(self, exercise_id: int) -> Exercise | None:
+        result = await self.session.execute(select(Exercise).where(Exercise.id == exercise_id))
+        return result.scalar_one_or_none()
+
+    async def list(self) -> list[Exercise]:
+        result = await self.session.execute(select(Exercise))
+        return list(result.scalars().all())

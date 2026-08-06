@@ -30,6 +30,15 @@ class FakeExerciseRepository:
             explanation=exercise_data.explanation,
         )
 
+    async def get_by_id(
+        self,
+        exercise_id: int,
+    ) -> Exercise | None:
+        return None
+
+    async def list(self) -> list[Exercise]:
+        return []
+
 
 class FakeOllamaClient:
     def generate_exercise(self, prompt: str) -> ExerciseResponse:

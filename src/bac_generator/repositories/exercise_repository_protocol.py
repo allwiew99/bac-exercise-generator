@@ -9,3 +9,10 @@ class ExerciseRepositoryProtocol(Protocol):
         self,
         exercise_data: ExerciseResponse,
     ) -> Exercise: ...
+
+    async def get_by_id(
+        self,
+        exercise_id: int,
+    ) -> Exercise | None: ...
+
+    async def list(self) -> list[Exercise]: ...
