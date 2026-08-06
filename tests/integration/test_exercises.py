@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi.testclient import TestClient
 
 from bac_generator.api.routes.exercises import (
@@ -30,6 +32,27 @@ class FakeExerciseRepository:
             solution=exercise_data.solution,
             explanation=exercise_data.explanation,
         )
+    async def list(self) -> list[Exercise]:
+        return [
+        Exercise(
+            id=1,
+            topic="vectori",
+            difficulty="medium",
+            statement="Enunț 1.",
+            solution="Soluție 1.",
+            explanation="Explicație 1.",
+            created_at=datetime.now(UTC),
+        ),
+        Exercise(
+            id=2,
+            topic="matrici",
+            difficulty="hard",
+            statement="Enunț 2.",
+            solution="Soluție 2.",
+            explanation="Explicație 2.",
+            created_at=datetime.now(UTC),
+        ),
+    ]
 
 
 class FakeExerciseGenerationErrorClient:
@@ -150,5 +173,30 @@ def test_generate_exercise_returns_valid_response() -> None:
         assert body["statement"]
         assert body["solution"]
         assert body["explanation"]
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_list_exercises_returns_exercises() -> None:
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
+
+    try:
+        response = client.get("/exercises/")
+
+        body = response.json()
+
+        assert response.status_code == 200
+        assert isinstance(body, list)
+        assert len(body) == 2
+        assert body[0]["id"] == 1
+        assert body[0]["topic"] == "vectori"
+        assert body[0]["difficulty"] == "medium"
+        assert body[0]["statement"] == "Enunț 1."
+        assert body[0]["solution"] == "Soluție 1."
+        assert body[0]["explanation"] == "Explicație 1."
+        assert "created_at" in body[0]
+        assert body[1]["id"] == 2
+        assert body[1]["topic"] == "matrici"
+        assert body[1]["difficulty"] == "hard"
     finally:
         app.dependency_overrides.clear()

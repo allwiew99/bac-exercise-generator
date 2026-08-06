@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bac_generator.ai.ollama_client import OllamaClient
@@ -8,7 +8,11 @@ from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.core.config import settings
 from bac_generator.db.session import get_db_session
 from bac_generator.repositories.exercise_repository import ExerciseRepository
-from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
+from bac_generator.schemas.exercise import (
+    ExerciseRead,
+    ExerciseRequest,
+    ExerciseResponse,
+)
 from bac_generator.services.code_validator import CodeValidator
 from bac_generator.services.exercise_service import ExerciseService
 from bac_generator.services.exercise_validator import ExerciseValidator
@@ -90,3 +94,45 @@ async def generate_exercise(
     ],
 ) -> ExerciseResponse:
     return await service.generate(request)
+
+
+@router.get(
+    "/",
+    response_model=list[ExerciseRead],
+)
+async def list_exercises(
+    service: Annotated[
+        ExerciseService,
+        Depends(get_exercise_service),
+    ],
+) -> list[ExerciseRead]:
+    exercises = await service.list_exercises()
+
+    return [
+        ExerciseRead.model_validate(exercise)
+        for exercise in exercises
+    ]
+
+
+@router.get(
+    "/{exercise_id}",
+    response_model=ExerciseRead,
+)
+async def get_exercise_by_id(
+    exercise_id: int,
+    service: Annotated[
+        ExerciseService,
+        Depends(get_exercise_service),
+    ],
+) -> ExerciseRead:
+    exercise = await service.get_exercise_by_id(exercise_id)
+
+    if exercise is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Exercise not found.",
+    )
+
+    return ExerciseRead.model_validate(exercise)
+
+    

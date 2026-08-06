@@ -2,6 +2,7 @@ import logging
 
 from bac_generator.ai.llm_client import LLMClient
 from bac_generator.ai.prompt_builder import PromptBuilder
+from bac_generator.db.models.exercise import Exercise
 from bac_generator.repositories.exercise_repository_protocol import (
     ExerciseRepositoryProtocol,
 )
@@ -36,4 +37,23 @@ class ExerciseService:
         self.validator.validate(request, exercise)
         await self.repository.create(exercise)
         logger.info("Exercise generated successfully")
+        return exercise
+
+    async def list_exercises(self) -> list[Exercise]:
+        logger.info("Listing all exercises.")
+
+        exercises = await self.repository.list()
+
+        logger.info("Retrieved %d exercises.", len(exercises))
+
+        return exercises
+
+    async def get_exercise_by_id(
+        self,
+        exercise_id: int,
+    ) -> Exercise | None:
+        logger.info("Retrieving exercise with id %d.", exercise_id)
+
+        exercise = await self.repository.get_by_id(exercise_id)
+
         return exercise

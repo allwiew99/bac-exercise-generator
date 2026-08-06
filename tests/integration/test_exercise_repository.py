@@ -64,3 +64,37 @@ async def test_get_by_id_returns_none_for_missing_exercise() -> None:
 
         assert found_exercise is None
 
+
+async def test_list_returns_existing_exercises() -> None:
+    async with session_factory() as session:
+        repository = ExerciseRepository(session)
+
+        exercise_data_1 = ExerciseResponse(
+            topic="vectori",
+            difficulty=Difficulty.MEDIUM,
+            statement="Enunț de test.",
+            solution="Cod C++ de test.",
+            explanation="Explicație de test.",
+        )
+
+        exercise_data_2 = ExerciseResponse(
+            topic="matrici",
+            difficulty=Difficulty.HARD,
+            statement="Enunț de test 2.",
+            solution="Cod C++ de test 2.",
+            explanation="Explicație de test 2.",
+        )
+
+        saved_exercise_1 = await repository.create(exercise_data_1)
+        saved_exercise_2 = await repository.create(exercise_data_2)
+
+        try:
+            exercises = await repository.list()
+            exercise_ids = [exercise.id for exercise in exercises]
+
+            assert saved_exercise_1.id in exercise_ids
+            assert saved_exercise_2.id in exercise_ids
+        finally:
+            await session.delete(saved_exercise_1)
+            await session.delete(saved_exercise_2)
+            await session.commit()
