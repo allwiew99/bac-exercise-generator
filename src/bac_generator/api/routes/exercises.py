@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bac_generator.ai.gemini_client import GeminiClient
+from bac_generator.ai.llm_client import LLMClient
 from bac_generator.ai.ollama_client import OllamaClient
 from bac_generator.ai.prompt_builder import PromptBuilder
 from bac_generator.core.config import settings
@@ -27,12 +29,23 @@ def get_prompt_builder() -> PromptBuilder:
     return PromptBuilder()
 
 
-def get_ollama_client() -> OllamaClient:
-    return OllamaClient(
-        base_url=settings.ollama_base_url,
-        model=settings.ollama_model,
-    )
+def get_llm_client() -> LLMClient:
+    if settings.llm_provider == "ollama":
+        return OllamaClient(
+            base_url=settings.ollama_base_url,
+            model=settings.ollama_model,
+        )
 
+    if settings.llm_provider == "gemini":
+        return GeminiClient(
+            project=settings.gemini_project,
+            location=settings.gemini_location,
+            model=settings.gemini_model,
+        )
+
+    raise ValueError(
+        f"Unsupported LLM provider: {settings.llm_provider}"
+    )
 
 def get_code_validator() -> CodeValidator:
     return CodeValidator()
@@ -61,9 +74,9 @@ def get_exercise_service(
         PromptBuilder,
         Depends(get_prompt_builder),
     ],
-    ollama_client: Annotated[
-        OllamaClient,
-        Depends(get_ollama_client),
+    llm_client: Annotated[
+        LLMClient,
+        Depends(get_llm_client),
     ],
     validator: Annotated[
         ExerciseValidator,
@@ -76,7 +89,7 @@ def get_exercise_service(
 ) -> ExerciseService:
     return ExerciseService(
         prompt_builder=prompt_builder,
-        llm_client=ollama_client,
+        llm_client=llm_client,
         validator=validator,
         repository=repository,
     )

@@ -12,6 +12,7 @@ dependencies = [
     "asyncpg",
     "ollama",
     "greenlet",
+    "google-genai",
 ]
 
 [tool.pytest.ini_options]

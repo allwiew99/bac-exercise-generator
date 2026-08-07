@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from bac_generator.api.routes.exercises import (
     get_code_validator,
     get_exercise_repository,
-    get_ollama_client,
+    get_llm_client,
 )
 from bac_generator.core.exceptions import ExerciseGenerationError, LLMResponseError
 from bac_generator.db.models import Exercise
@@ -153,7 +153,7 @@ class FakeInvalidTopicLLMClient:
 
 
 def test_generate_exercise_returns_exercise_generation_error() -> None:
-    app.dependency_overrides[get_ollama_client] = FakeExerciseGenerationErrorClient
+    app.dependency_overrides[get_llm_client] = FakeExerciseGenerationErrorClient
 
     try:
         response = client.post(
@@ -174,7 +174,7 @@ def test_generate_exercise_returns_exercise_generation_error() -> None:
 
 
 def test_generate_exercise_returns_llm_response_error() -> None:
-    app.dependency_overrides[get_ollama_client] = FakeLLMResponseErrorClient
+    app.dependency_overrides[get_llm_client] = FakeLLMResponseErrorClient
 
     try:
         response = client.post(
@@ -195,7 +195,7 @@ def test_generate_exercise_returns_llm_response_error() -> None:
 
 
 def test_generate_exercise_returns_validation_error() -> None:
-    app.dependency_overrides[get_ollama_client] = FakeInvalidTopicLLMClient
+    app.dependency_overrides[get_llm_client] = FakeInvalidTopicLLMClient
     app.dependency_overrides[get_code_validator] = FakeCodeValidator
 
     try:
@@ -217,7 +217,7 @@ def test_generate_exercise_returns_validation_error() -> None:
 
 
 def test_generate_exercise_returns_valid_response() -> None:
-    app.dependency_overrides[get_ollama_client] = FakeOllamaClient
+    app.dependency_overrides[get_llm_client] = FakeOllamaClient
     app.dependency_overrides[get_code_validator] = FakeCodeValidator
     app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
 

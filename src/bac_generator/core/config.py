@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen3.5:9b"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
     llm_max_attempts: int = 3
+    llm_provider: str = "ollama"
+    gemini_project: str = ""
+    gemini_location: str = "us-central1"
+    gemini_model: str = "gemini-2.5-flash"
 
 
 settings = Settings()
