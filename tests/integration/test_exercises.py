@@ -23,6 +23,13 @@ class FakeCodeValidator:
     def validate_cpp(self, code: str) -> None:
         pass
 
+    def validate_cpp_with_test_cases(
+        self,
+        code: str,
+        test_cases: list[ExerciseTestCase],
+    ) -> None:
+        pass
+
 
 class FakeExerciseRepository:
     async def create(

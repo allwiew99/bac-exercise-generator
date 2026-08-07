@@ -47,10 +47,13 @@ class ExerciseValidator:
             raise ExerciseValidationError("The generated 'explanation' field is empty.")
 
         try:
-            self.code_validator.validate_cpp(exercise.solution)
+            self.code_validator.validate_cpp_with_test_cases(
+                exercise.solution,
+                exercise.test_cases,
+            )
         except CodeCompilationError as exc:
             raise ExerciseValidationError(
-                f"The generated C++ solution does not compile. Compiler error:\n{exc}"
+                f"The generated C++ solution is invalid. Details:\n{exc}"
             ) from exc
 
         logger.info(
