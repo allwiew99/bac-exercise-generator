@@ -27,32 +27,42 @@ class ExerciseValidator:
 
         if request.topic != exercise.topic:
             raise ExerciseValidationError(
-                f"Exercise topic '{exercise.topic}' does not match "
+                f"Generated topic '{exercise.topic}' does not match "
                 f"requested topic '{request.topic}'."
             )
 
         if request.difficulty != exercise.difficulty:
             raise ExerciseValidationError(
-                f"Exercise difficulty '{exercise.difficulty}' does not match "
+                f"Generated difficulty '{exercise.difficulty}' does not match "
                 f"requested difficulty '{request.difficulty}'."
             )
 
-        if (
-            not exercise.statement.strip()
-            or not exercise.solution.strip()
-            or not exercise.explanation.strip()
-        ):
+        if not exercise.statement.strip():
             raise ExerciseValidationError(
-                "Exercise statement, solution, and explanation must not be empty."
+                "The generated 'statement' field is empty."
+            )
+
+        if not exercise.solution.strip():
+            raise ExerciseValidationError(
+                "The generated 'solution' field is empty."
+            )
+
+        if not exercise.explanation.strip():
+            raise ExerciseValidationError(
+                "The generated 'explanation' field is empty."
             )
 
         try:
             self.code_validator.validate_cpp(exercise.solution)
         except CodeCompilationError as exc:
-            raise ExerciseValidationError(f"Invalid exercise solution: {exc}") from exc
+            raise ExerciseValidationError(
+                "The generated C++ solution does not compile. "
+                f"Compiler error:\n{exc}"
+            ) from exc
 
         logger.info(
-            "Exercise validation completed successfully for topic '%s' with difficulty '%s'.",
+            "Exercise validation completed successfully for topic '%s' "
+            "with difficulty '%s'.",
             exercise.topic,
             exercise.difficulty,
         )

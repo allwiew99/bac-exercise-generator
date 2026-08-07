@@ -30,3 +30,28 @@ Output:
 - Do not use Markdown or code fences.
 - Do not add text before or after the JSON object.
 """.strip()
+    def build_repair_prompt(
+        self,
+        request: ExerciseRequest,
+        previous_error: str,
+    ) -> str:
+        base_prompt = self.build_exercise_prompt(request)
+
+        return f"""
+    {base_prompt}
+
+    The previous attempt was invalid.
+
+    Reason:
+    {previous_error}
+
+    Correction requirements:
+    - Fix the reported issue.
+    - Keep the requested topic unchanged.
+    - Keep the requested difficulty unchanged.
+    - Return only one valid JSON object.
+    - Use exactly these five keys:
+      "topic", "difficulty", "statement", "solution", "explanation".
+    - Do not add Markdown or code fences.
+    - Do not add text before or after the JSON object.
+    """.strip()

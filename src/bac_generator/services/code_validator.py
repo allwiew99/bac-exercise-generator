@@ -46,3 +46,32 @@ class CodeValidator:
                 raise CodeCompilationError(f"Compilation failed:\n{error_message}")
 
             logger.info("C++ code compiled successfully.")
+
+            try:
+                run_result = subprocess.run(
+                    [str(executable_path)],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=2,
+                )
+            except subprocess.TimeoutExpired as exc:
+                logger.error("C++ program execution timed out.")
+
+                raise CodeCompilationError(
+                    "Program execution timed out after 2 seconds."
+                ) from exc
+            if run_result.returncode != 0:
+                error_message = run_result.stderr.strip()
+
+                if not error_message:
+                    error_message = "Program exited with a non-zero status code."
+
+                logger.error(
+                    "C++ program execution failed: %s",
+                    error_message,
+                )
+
+                raise CodeCompilationError(
+                    f"Program execution failed:\n{error_message}"
+                )

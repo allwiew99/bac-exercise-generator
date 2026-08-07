@@ -101,6 +101,6 @@ def test_validate_rejects_empty_statement() -> None:
 
     with pytest.raises(
         ExerciseValidationError,
-        match="must not be empty",
+        match="The generated 'statement' field is empty",
     ):
         validator.validate(request, exercise)

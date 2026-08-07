@@ -60,6 +60,10 @@ class ExerciseService:
                     settings.llm_max_attempts,
                     exc,
                 )
+                prompt = self.prompt_builder.build_repair_prompt(
+                    request,
+                    str(exc),
+                )
 
                 continue
 

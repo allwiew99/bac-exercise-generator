@@ -17,6 +17,39 @@ class FakeCodeValidator:
         pass
 
 
+class FakeRetryLLMClient:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def generate_exercise(
+        self,
+        prompt: str,
+    ) -> ExerciseResponse:
+        self.calls += 1
+
+        if self.calls == 1:
+            raise ExerciseValidationError("Temporary validation failure.")
+
+        return ExerciseResponse(
+            topic="vectori",
+            difficulty=Difficulty.MEDIUM,
+            statement="Enunț de test.",
+            solution="Soluție de test.",
+            explanation="Explicație de test.",
+        )
+
+
+class FakeAlwaysFailLLMClient:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def generate_exercise(
+        self,
+        prompt: str,
+    ) -> ExerciseResponse:
+        self.calls += 1
+        raise ExerciseValidationError("Temporary validation failure.")
+
 class FakeExerciseRepository:
     async def create(
         self,
@@ -103,3 +136,45 @@ async def test_generate_rejects_exercise_with_mismatched_topic() -> None:
         match="does not match requested topic",
     ):
         await service.generate(request)
+
+
+async def test_generate_retries_after_validation_error() -> None:
+    llm_client = FakeRetryLLMClient()
+
+    service = ExerciseService(
+        prompt_builder=PromptBuilder(),
+        llm_client=llm_client,
+        validator=ExerciseValidator(FakeCodeValidator()),
+        repository=FakeExerciseRepository(),
+    )
+
+    request = ExerciseRequest(
+        topic="vectori",
+        difficulty=Difficulty.MEDIUM,
+    )
+
+    response = await service.generate(request)
+
+    assert response.topic == "vectori"
+    assert llm_client.calls == 2
+
+
+async def test_generate_raises_after_max_attempts() -> None:
+    llm_client = FakeAlwaysFailLLMClient()
+
+    service = ExerciseService(
+        prompt_builder=PromptBuilder(),
+        llm_client=llm_client,
+        validator=ExerciseValidator(FakeCodeValidator()),
+        repository=FakeExerciseRepository(),
+    )
+
+    request = ExerciseRequest(
+        topic="vectori",
+        difficulty=Difficulty.MEDIUM,
+    )
+
+    with pytest.raises(ExerciseValidationError):
+        await service.generate(request)
+
+    assert llm_client.calls == 3
