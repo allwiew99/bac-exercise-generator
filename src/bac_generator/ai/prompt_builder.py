@@ -15,13 +15,22 @@ Difficulty:
 
 Requirements:
 - Generate a clear and correct problem statement.
-- Include the complete solution.
-- Include an explanation of the solution.
+- Include the complete C++ solution.
+- Include a clear explanation of the solution.
+- Include between 1 and 3 test cases.
+- Each test case must contain exactly two fields:
+  "input" and "expected_output".
+- Both "input" and "expected_output" must be strings.
+- The expected output must match the provided solution.
 
 Output:
 - Return only one valid JSON object.
-- Use exactly these five keys:
-  "topic", "difficulty", "statement", "solution", "explanation".
+- Use exactly these six keys:
+  "topic", "difficulty", "statement", "solution", "explanation", "test_cases".
+- "test_cases" must be an array containing between 1 and 3 objects.
+- Each test case object must contain exactly these two keys:
+  "input" and "expected_output".
+- Both "input" and "expected_output" must be strings.
 - Do not rename any key.
 - Do not use "problem", "problem_statement", "answer" or other alternative keys.
 - Copy the requested topic into "topic".
@@ -30,6 +39,7 @@ Output:
 - Do not use Markdown or code fences.
 - Do not add text before or after the JSON object.
 """.strip()
+
     def build_repair_prompt(
         self,
         request: ExerciseRequest,
@@ -50,8 +60,12 @@ Output:
     - Keep the requested topic unchanged.
     - Keep the requested difficulty unchanged.
     - Return only one valid JSON object.
-    - Use exactly these five keys:
-      "topic", "difficulty", "statement", "solution", "explanation".
+    - Use exactly these six keys:
+      "topic", "difficulty", "statement", "solution", "explanation", "test_cases".
+    - "test_cases" must be an array containing between 1 and 3 objects.
+    - Each test case object must contain exactly these two keys:
+      "input" and "expected_output".
+    - Both "input" and "expected_output" must be strings.
     - Do not add Markdown or code fences.
     - Do not add text before or after the JSON object.
     """.strip()

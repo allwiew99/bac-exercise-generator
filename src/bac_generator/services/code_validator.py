@@ -58,9 +58,7 @@ class CodeValidator:
             except subprocess.TimeoutExpired as exc:
                 logger.error("C++ program execution timed out.")
 
-                raise CodeCompilationError(
-                    "Program execution timed out after 2 seconds."
-                ) from exc
+                raise CodeCompilationError("Program execution timed out after 2 seconds.") from exc
             if run_result.returncode != 0:
                 error_message = run_result.stderr.strip()
 
@@ -72,6 +70,4 @@ class CodeValidator:
                     error_message,
                 )
 
-                raise CodeCompilationError(
-                    f"Program execution failed:\n{error_message}"
-                )
+                raise CodeCompilationError(f"Program execution failed:\n{error_message}")

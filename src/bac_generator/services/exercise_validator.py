@@ -38,31 +38,23 @@ class ExerciseValidator:
             )
 
         if not exercise.statement.strip():
-            raise ExerciseValidationError(
-                "The generated 'statement' field is empty."
-            )
+            raise ExerciseValidationError("The generated 'statement' field is empty.")
 
         if not exercise.solution.strip():
-            raise ExerciseValidationError(
-                "The generated 'solution' field is empty."
-            )
+            raise ExerciseValidationError("The generated 'solution' field is empty.")
 
         if not exercise.explanation.strip():
-            raise ExerciseValidationError(
-                "The generated 'explanation' field is empty."
-            )
+            raise ExerciseValidationError("The generated 'explanation' field is empty.")
 
         try:
             self.code_validator.validate_cpp(exercise.solution)
         except CodeCompilationError as exc:
             raise ExerciseValidationError(
-                "The generated C++ solution does not compile. "
-                f"Compiler error:\n{exc}"
+                f"The generated C++ solution does not compile. Compiler error:\n{exc}"
             ) from exc
 
         logger.info(
-            "Exercise validation completed successfully for topic '%s' "
-            "with difficulty '%s'.",
+            "Exercise validation completed successfully for topic '%s' with difficulty '%s'.",
             exercise.topic,
             exercise.difficulty,
         )

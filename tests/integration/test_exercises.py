@@ -10,7 +10,11 @@ from bac_generator.api.routes.exercises import (
 from bac_generator.core.exceptions import ExerciseGenerationError, LLMResponseError
 from bac_generator.db.models import Exercise
 from bac_generator.main import app
-from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
+from bac_generator.schemas.exercise import (
+    Difficulty,
+    ExerciseResponse,
+    ExerciseTestCase,
+)
 
 client = TestClient(app)
 
@@ -31,6 +35,12 @@ class FakeExerciseRepository:
             statement=exercise_data.statement,
             solution=exercise_data.solution,
             explanation=exercise_data.explanation,
+            test_cases=[
+                {
+                    "input": "3\n1 2 4",
+                    "expected_output": "6",
+                }
+            ],
         )
 
     async def list(self) -> list[Exercise]:
@@ -43,6 +53,12 @@ class FakeExerciseRepository:
                 solution="Soluție 1.",
                 explanation="Explicație 1.",
                 created_at=datetime.now(UTC),
+                test_cases=[
+                    {
+                        "input": "3\n1 2 4",
+                        "expected_output": "6",
+                    }
+                ],
             ),
             Exercise(
                 id=2,
@@ -52,6 +68,12 @@ class FakeExerciseRepository:
                 solution="Soluție 2.",
                 explanation="Explicație 2.",
                 created_at=datetime.now(UTC),
+                test_cases=[
+                    {
+                        "input": "3\n1 2 4",
+                        "expected_output": "6",
+                    }
+                ],
             ),
         ]
 
@@ -68,6 +90,12 @@ class FakeExerciseRepository:
                 solution="Soluție 1.",
                 explanation="Explicație 1.",
                 created_at=datetime.now(UTC),
+                test_cases=[
+                    {
+                        "input": "3\n1 2 4",
+                        "expected_output": "6",
+                    }
+                ],
             )
 
         return None
@@ -91,6 +119,12 @@ class FakeOllamaClient:
             statement="Enunț de test.",
             solution="Soluție de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
 
@@ -102,6 +136,12 @@ class FakeInvalidTopicLLMClient:
             statement="Enunț de test.",
             solution="Soluție de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
 

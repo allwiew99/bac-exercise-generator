@@ -19,7 +19,13 @@ def test_generate_exercise_returns_validated_response() -> None:
         "difficulty": "medium",
         "statement": "Enunț de test.",
         "solution": "Soluție de test.",
-        "explanation": "Explicație de test."
+        "explanation": "Explicație de test.",
+        "test_cases": [
+            {
+                "input": "3\\n1 2 4",
+                "expected_output": "6"
+            }
+        ]
     }
     """
 
@@ -34,6 +40,9 @@ def test_generate_exercise_returns_validated_response() -> None:
     assert result.statement == "Enunț de test."
     assert result.solution == "Soluție de test."
     assert result.explanation == "Explicație de test."
+    assert len(result.test_cases) == 1
+    assert result.test_cases[0].input == "3\n1 2 4"
+    assert result.test_cases[0].expected_output == "6"
 
 
 def test_generate_exercise_rejects_empty_content() -> None:

@@ -2,7 +2,11 @@ import pytest
 
 from bac_generator.db.session import session_factory
 from bac_generator.repositories.exercise_repository import ExerciseRepository
-from bac_generator.schemas.exercise import Difficulty, ExerciseResponse
+from bac_generator.schemas.exercise import (
+    Difficulty,
+    ExerciseResponse,
+    ExerciseTestCase,
+)
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -17,6 +21,12 @@ async def test_create_persists_exercise() -> None:
             statement="Enunț de test.",
             solution="Cod C++ de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
         saved_exercise = await repository.create(exercise_data)
@@ -41,6 +51,12 @@ async def test_get_by_id_returns_existing_exercise() -> None:
             statement="Enunț de test.",
             solution="Cod C++ de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
         saved_exercise = await repository.create(exercise_data)
@@ -75,6 +91,12 @@ async def test_list_returns_existing_exercises() -> None:
             statement="Enunț de test.",
             solution="Cod C++ de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
         exercise_data_2 = ExerciseResponse(
@@ -83,6 +105,12 @@ async def test_list_returns_existing_exercises() -> None:
             statement="Enunț de test 2.",
             solution="Cod C++ de test 2.",
             explanation="Explicație de test 2.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
         saved_exercise_1 = await repository.create(exercise_data_1)

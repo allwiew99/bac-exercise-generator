@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from bac_generator.db.base import Base
@@ -36,6 +37,11 @@ class Exercise(Base):
 
     explanation: Mapped[str] = mapped_column(
         Text,
+        nullable=False,
+    )
+
+    test_cases: Mapped[list[dict[str, str]]] = mapped_column(
+        JSONB,
         nullable=False,
     )
 

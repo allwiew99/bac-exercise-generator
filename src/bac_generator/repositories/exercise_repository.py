@@ -19,6 +19,7 @@ class ExerciseRepository:
             statement=exercise_data.statement,
             solution=exercise_data.solution,
             explanation=exercise_data.explanation,
+            test_cases=[test_case.model_dump() for test_case in exercise_data.test_cases],
         )
 
         self.session.add(exercise)

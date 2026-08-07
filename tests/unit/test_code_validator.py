@@ -43,3 +43,37 @@ def test_validate_cpp_rejects_empty_code() -> None:
         match="Code cannot be empty",
     ):
         code_validator.validate_cpp("   ")
+
+
+def test_validate_cpp_rejects_timeout() -> None:
+    code_validator = CodeValidator()
+
+    code = """
+    int main() {
+        while (true) {
+        }
+    }
+    """
+
+    with pytest.raises(
+        CodeCompilationError,
+        match="timed out",
+    ):
+        code_validator.validate_cpp(code)
+
+
+def test_validate_cpp_rejects_runtime_error() -> None:
+    code_validator = CodeValidator()
+
+    code = """
+        #include <cstdlib>
+
+        int main() {
+            std::abort();
+        }
+    """
+    with pytest.raises(
+        CodeCompilationError,
+        match="Program execution failed",
+    ):
+        code_validator.validate_cpp(code)

@@ -78,7 +78,6 @@ class ExerciseService:
 
         raise RuntimeError("Exercise generation loop ended unexpectedly.")
 
-
     async def list_exercises(self) -> list[Exercise]:
         logger.info("Listing all exercises.")
 

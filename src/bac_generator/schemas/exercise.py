@@ -11,6 +11,11 @@ class Difficulty(StrEnum):
     EXTREME = "extreme"
 
 
+class ExerciseTestCase(BaseModel):
+    input: str
+    expected_output: str
+
+
 class ExerciseRequest(BaseModel):
     topic: str
     difficulty: Difficulty
@@ -22,6 +27,7 @@ class ExerciseResponse(BaseModel):
     statement: str
     solution: str
     explanation: str
+    test_cases: list[ExerciseTestCase]
 
 
 class ExerciseRead(BaseModel):
@@ -34,3 +40,4 @@ class ExerciseRead(BaseModel):
     solution: str
     explanation: str
     created_at: datetime
+    test_cases: list[ExerciseTestCase]

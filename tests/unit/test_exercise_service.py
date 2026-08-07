@@ -7,6 +7,7 @@ from bac_generator.schemas.exercise import (
     Difficulty,
     ExerciseRequest,
     ExerciseResponse,
+    ExerciseTestCase,
 )
 from bac_generator.services.exercise_service import ExerciseService
 from bac_generator.services.exercise_validator import ExerciseValidator
@@ -36,6 +37,12 @@ class FakeRetryLLMClient:
             statement="Enunț de test.",
             solution="Soluție de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
 
@@ -49,6 +56,7 @@ class FakeAlwaysFailLLMClient:
     ) -> ExerciseResponse:
         self.calls += 1
         raise ExerciseValidationError("Temporary validation failure.")
+
 
 class FakeExerciseRepository:
     async def create(
@@ -81,6 +89,12 @@ class FakeOllamaClient:
             statement="Enunț de test.",
             solution="Soluție de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
 
@@ -92,6 +106,12 @@ class FakeInvalidTopicLLMClient:
             statement="Enunț de test.",
             solution="Soluție de test.",
             explanation="Explicație de test.",
+            test_cases=[
+                ExerciseTestCase(
+                    input="3\n1 2 4",
+                    expected_output="6",
+                )
+            ],
         )
 
 

@@ -5,6 +5,7 @@ from bac_generator.schemas.exercise import (
     Difficulty,
     ExerciseRequest,
     ExerciseResponse,
+    ExerciseTestCase,
 )
 from bac_generator.services.exercise_validator import ExerciseValidator
 
@@ -29,6 +30,12 @@ def test_validate_accepts_valid_exercise() -> None:
         statement="Enunț valid.",
         solution="Soluție validă.",
         explanation="Explicație validă.",
+        test_cases=[
+            ExerciseTestCase(
+                input="3\n1 2 4",
+                expected_output="6",
+            )
+        ],
     )
 
     validator.validate(request, exercise)
@@ -49,6 +56,12 @@ def test_validate_rejects_mismatched_topic() -> None:
         statement="Enunț valid.",
         solution="Soluție validă.",
         explanation="Explicație validă.",
+        test_cases=[
+            ExerciseTestCase(
+                input="3\n1 2 4",
+                expected_output="6",
+            )
+        ],
     )
 
     with pytest.raises(
@@ -73,6 +86,12 @@ def test_validate_rejects_mismatched_difficulty() -> None:
         statement="Enunț valid.",
         solution="Soluție validă.",
         explanation="Explicație validă.",
+        test_cases=[
+            ExerciseTestCase(
+                input="3\n1 2 4",
+                expected_output="6",
+            )
+        ],
     )
 
     with pytest.raises(
@@ -97,6 +116,12 @@ def test_validate_rejects_empty_statement() -> None:
         statement="",
         solution="Soluție validă.",
         explanation="Explicație validă.",
+        test_cases=[
+            ExerciseTestCase(
+                input="3\n1 2 4",
+                expected_output="6",
+            )
+        ],
     )
 
     with pytest.raises(
