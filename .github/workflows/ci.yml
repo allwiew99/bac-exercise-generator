@@ -54,3 +54,48 @@ jobs:
 
       - name: Run pytest
         run: python -m pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/758439681309/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions-deployer@bac-exercise-generator-prod.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker authentication
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push \
+            europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy bac-exercise-generator \
+            --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
+            --region=europe-west1 \
+            --platform=managed \
+            --quiet
