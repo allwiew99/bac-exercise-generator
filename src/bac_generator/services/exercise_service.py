@@ -48,6 +48,7 @@ class ExerciseService:
             try:
                 exercise = self.llm_client.generate_exercise(prompt)
                 self.validator.validate(request, exercise)
+
             except (ExerciseValidationError, LLMResponseError) as exc:
                 is_last_attempt = attempt_number == settings.llm_max_attempts
 
@@ -60,6 +61,7 @@ class ExerciseService:
                     settings.llm_max_attempts,
                     exc,
                 )
+
                 prompt = self.prompt_builder.build_repair_prompt(
                     request,
                     str(exc),
@@ -67,7 +69,7 @@ class ExerciseService:
 
                 continue
 
-                await self.repository.create(exercise)
+            await self.repository.create(exercise)
 
             logger.info(
                 "Exercise generated successfully on attempt %d.",
@@ -76,14 +78,19 @@ class ExerciseService:
 
             return exercise
 
-        raise RuntimeError("Exercise generation loop ended unexpectedly.")
+        raise RuntimeError(
+            "Exercise generation loop ended unexpectedly."
+        )
 
     async def list_exercises(self) -> list[Exercise]:
         logger.info("Listing all exercises.")
 
         exercises = await self.repository.list()
 
-        logger.info("Retrieved %d exercises.", len(exercises))
+        logger.info(
+            "Retrieved %d exercises.",
+            len(exercises),
+        )
 
         return exercises
 
@@ -91,7 +98,10 @@ class ExerciseService:
         self,
         exercise_id: int,
     ) -> Exercise | None:
-        logger.info("Retrieving exercise with id %d.", exercise_id)
+        logger.info(
+            "Retrieving exercise with id %d.",
+            exercise_id,
+        )
 
         exercise = await self.repository.get_by_id(exercise_id)
 

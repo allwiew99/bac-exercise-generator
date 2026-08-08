@@ -8,7 +8,12 @@ from sqlalchemy.ext.asyncio import (
 
 from bac_generator.core.config import settings
 
-engine = create_async_engine(settings.database_url)
+engine = create_async_engine(
+    settings.database_url,
+    connect_args={
+        "statement_cache_size": 0,
+    },
+)
 
 
 session_factory = async_sessionmaker(
