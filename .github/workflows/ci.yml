@@ -79,13 +79,16 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v3
         with:
-          version: latest
+          version: ">= 578.0.0"
           install_components: beta
 
-      - name: Show gcloud version
+      - name: Verify Cloud Run sandbox support
         run: |
           gcloud version
-          gcloud beta run deploy --help | grep sandbox
+          gcloud beta run deploy --help | grep -- "--sandbox-launcher" || {
+            echo "Installed gcloud does not support Cloud Run sandbox launcher."
+            exit 1
+          }
 
       - name: Configure Docker authentication
         run: |
@@ -119,4 +122,3 @@ jobs:
             --set-env-vars="LLM_PROVIDER=gemini,GEMINI_PROJECT=bac-exercise-generator-prod,GEMINI_LOCATION=europe-west1,GEMINI_MODEL=gemini-2.5-flash,FIREBASE_PROJECT_ID=bac-exercise-generator-prod,CODE_RUNNER_PROVIDER=sandbox" \
             --set-secrets="DATABASE_URL=database-url:latest" \
             --quiet
-            
