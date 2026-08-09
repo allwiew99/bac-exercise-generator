@@ -8,11 +8,16 @@ class ExerciseRepositoryProtocol(Protocol):
     async def create(
         self,
         exercise_data: ExerciseResponse,
+        user_id: str,
     ) -> Exercise: ...
 
     async def get_by_id(
         self,
         exercise_id: int,
+        user_id: str,
     ) -> Exercise | None: ...
 
-    async def list(self) -> list[Exercise]: ...
+    async def list(
+        self,
+        user_id: str,
+    ) -> list[Exercise]: ...

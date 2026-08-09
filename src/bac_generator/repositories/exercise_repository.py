@@ -12,25 +12,49 @@ class ExerciseRepository:
     async def create(
         self,
         exercise_data: ExerciseResponse,
+        user_id: str,
     ) -> Exercise:
         exercise = Exercise(
+            user_id=user_id,
             topic=exercise_data.topic,
             difficulty=exercise_data.difficulty,
             statement=exercise_data.statement,
             solution=exercise_data.solution,
             explanation=exercise_data.explanation,
-            test_cases=[test_case.model_dump() for test_case in exercise_data.test_cases],
+            test_cases=[
+                test_case.model_dump()
+                for test_case in exercise_data.test_cases
+            ],
         )
 
         self.session.add(exercise)
         await self.session.commit()
         await self.session.refresh(exercise)
+
         return exercise
 
-    async def get_by_id(self, exercise_id: int) -> Exercise | None:
-        result = await self.session.execute(select(Exercise).where(Exercise.id == exercise_id))
+    async def get_by_id(
+        self,
+        exercise_id: int,
+        user_id: str,
+    ) -> Exercise | None:
+        result = await self.session.execute(
+            select(Exercise).where(
+                Exercise.id == exercise_id,
+                Exercise.user_id == user_id,
+            )
+        )
+
         return result.scalar_one_or_none()
 
-    async def list(self) -> list[Exercise]:
-        result = await self.session.execute(select(Exercise))
+    async def list(
+        self,
+        user_id: str,
+    ) -> list[Exercise]:
+        result = await self.session.execute(
+            select(Exercise).where(
+                Exercise.user_id == user_id
+            )
+        )
+
         return list(result.scalars().all())

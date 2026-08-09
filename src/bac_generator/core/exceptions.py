@@ -16,3 +16,10 @@ class LLMResponseError(BacGeneratorError):
 
 class ExerciseGenerationError(BacGeneratorError):
     pass
+
+
+class SolutionLockedError(Exception):
+    """Raised when the official solution is requested before any submission."""
+
+class RateLimitExceededError(Exception):
+    """Raised when a user exceeds an allowed request rate."""

@@ -13,6 +13,7 @@ dependencies = [
     "ollama",
     "greenlet",
     "google-genai",
+    "firebase-admin",
 ]
 
 [tool.pytest.ini_options]
@@ -48,3 +49,10 @@ dev = [
     "ruff",
     "mypy",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+    "firebase_admin",
+    "firebase_admin.*",
+]
+ignore_missing_imports = true

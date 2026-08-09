@@ -11,7 +11,7 @@ from bac_generator.db.models.exercise import Exercise
 from bac_generator.repositories.exercise_repository_protocol import (
     ExerciseRepositoryProtocol,
 )
-from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
+from bac_generator.schemas.exercise import ExerciseRequest
 from bac_generator.services.exercise_validator import ExerciseValidator
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,8 @@ class ExerciseService:
     async def generate(
         self,
         request: ExerciseRequest,
-    ) -> ExerciseResponse:
+        user_id: str,
+    ) -> Exercise:
         logger.info(
             "Generating exercise for topic '%s' with difficulty '%s'.",
             request.topic,
@@ -50,7 +51,9 @@ class ExerciseService:
                 self.validator.validate(request, exercise)
 
             except (ExerciseValidationError, LLMResponseError) as exc:
-                is_last_attempt = attempt_number == settings.llm_max_attempts
+                is_last_attempt = (
+                    attempt_number == settings.llm_max_attempts
+                )
 
                 if is_last_attempt:
                     raise
@@ -69,27 +72,37 @@ class ExerciseService:
 
                 continue
 
-            await self.repository.create(exercise)
+            persisted_exercise = await self.repository.create(
+                exercise,
+                user_id,
+            )
 
             logger.info(
                 "Exercise generated successfully on attempt %d.",
                 attempt_number,
             )
 
-            return exercise
+            return persisted_exercise
 
         raise RuntimeError(
             "Exercise generation loop ended unexpectedly."
         )
 
-    async def list_exercises(self) -> list[Exercise]:
-        logger.info("Listing all exercises.")
+    async def list_exercises(
+        self,
+        user_id: str,
+    ) -> list[Exercise]:
+        logger.info(
+            "Listing exercises for user '%s'.",
+            user_id,
+        )
 
-        exercises = await self.repository.list()
+        exercises = await self.repository.list(user_id)
 
         logger.info(
-            "Retrieved %d exercises.",
+            "Retrieved %d exercises for user '%s'.",
             len(exercises),
+            user_id,
         )
 
         return exercises
@@ -97,12 +110,17 @@ class ExerciseService:
     async def get_exercise_by_id(
         self,
         exercise_id: int,
+        user_id: str,
     ) -> Exercise | None:
         logger.info(
-            "Retrieving exercise with id %d.",
+            "Retrieving exercise with id %d for user '%s'.",
             exercise_id,
+            user_id,
         )
 
-        exercise = await self.repository.get_by_id(exercise_id)
+        exercise = await self.repository.get_by_id(
+            exercise_id,
+            user_id,
+        )
 
         return exercise

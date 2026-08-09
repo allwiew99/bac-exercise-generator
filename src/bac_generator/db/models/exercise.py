@@ -15,6 +15,12 @@ class Exercise(Base):
         primary_key=True,
     )
 
+    user_id: Mapped[str | None] = mapped_column(
+        String(128),
+        nullable=True,
+        index=True,
+    )
+
     topic: Mapped[str] = mapped_column(
         String(255),
         nullable=False,

@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-bg: #f7f7f9;
+  --color-surface: #ffffff;
+  --color-border: #e5e5ea;
+  --color-text: #17171b;
+  --color-text-secondary: #63636b;
+  --color-primary: #4338ca;
+  --color-primary-hover: #3730a3;
+  --color-accent-bg: #eef2ff;
+  --color-success: #15803d;
+  --color-danger: #b91c1c;
+  --color-danger-bg: #fdeaea;
+  --color-warning: #b45309;
+  --color-code-bg: #f3f3f6;
+}
+
+.dark {
+  --color-bg: #101114;
+  --color-surface: #17181d;
+  --color-border: #2a2b32;
+  --color-text: #f1f1f3;
+  --color-text-secondary: #9a9aa2;
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-accent-bg: #221f3d;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-danger-bg: #3a1c1c;
+  --color-warning: #fbbf24;
+  --color-code-bg: #0c0d10;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-accent-bg: var(--color-accent-bg);
+  --color-success: var(--color-success);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-warning: var(--color-warning);
+  --color-code-bg: var(--color-code-bg);
+  --font-display: var(--font-space-grotesk), sans-serif;
+  --font-sans: var(--font-karla), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+::selection {
+  background: var(--color-accent-bg);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font-family: inherit;
+}

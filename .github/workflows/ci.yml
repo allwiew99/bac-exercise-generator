@@ -36,7 +36,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install Clang
-        run: sudo apt-get update && sudo apt-get install -y clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
 
       - name: Install dependencies
         run: |
@@ -78,7 +80,10 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker authentication
-        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        run: |
+          gcloud auth configure-docker \
+            europe-west1-docker.pkg.dev \
+            --quiet
 
       - name: Build Docker image
         run: |
@@ -94,8 +99,15 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy bac-exercise-generator \
+          gcloud beta run deploy bac-exercise-generator \
             --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
             --region=europe-west1 \
             --platform=managed \
+            --sandbox-launcher \
+            --cpu=1 \
+            --memory=1Gi \
+            --concurrency=4 \
+            --set-env-vars="LLM_PROVIDER=gemini,GEMINI_PROJECT=bac-exercise-generator-prod,GEMINI_LOCATION=europe-west1,GEMINI_MODEL=gemini-2.5-flash,FIREBASE_PROJECT_ID=bac-exercise-generator-prod,CODE_RUNNER_PROVIDER=sandbox" \
+            --set-secrets="DATABASE_URL=database-url:latest" \
             --quiet
+            
