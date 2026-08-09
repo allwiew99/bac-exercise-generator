@@ -120,13 +120,18 @@ class SandboxCodeRunner:
         return """#!/usr/bin/env bash
 set -euo pipefail
 
-clang++ main.cpp -std=c++17 -O2 -o main
+/usr/bin/clang++ \
+    main.cpp \
+    -std=c++17 \
+    -O2 \
+    -fuse-ld=lld \
+    -o main
 
 if [ ! -f tests.json ]; then
     exit 0
 fi
 
-python3 - <<'PY'
+/usr/local/bin/python3 - <<'PY'
 import json
 import subprocess
 import sys

@@ -7,6 +7,7 @@ RUN apt-get update \
         bash \
         build-essential \
         clang \
+        lld \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md ./
