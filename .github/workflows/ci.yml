@@ -77,11 +77,15 @@ jobs:
           service_account: github-actions-deployer@bac-exercise-generator-prod.iam.gserviceaccount.com
 
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          version: latest
+          install_components: beta
 
-      - name: Install gcloud beta component
+      - name: Show gcloud version
         run: |
-          gcloud components install beta --quiet
+          gcloud version
+          gcloud beta run deploy --help | grep sandbox
 
       - name: Configure Docker authentication
         run: |
@@ -107,6 +111,7 @@ jobs:
             --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
             --region=europe-west1 \
             --platform=managed \
+            --execution-environment=gen2 \
             --sandbox-launcher \
             --cpu=1 \
             --memory=1Gi \
@@ -114,3 +119,4 @@ jobs:
             --set-env-vars="LLM_PROVIDER=gemini,GEMINI_PROJECT=bac-exercise-generator-prod,GEMINI_LOCATION=europe-west1,GEMINI_MODEL=gemini-2.5-flash,FIREBASE_PROJECT_ID=bac-exercise-generator-prod,CODE_RUNNER_PROVIDER=sandbox" \
             --set-secrets="DATABASE_URL=database-url:latest" \
             --quiet
+            
