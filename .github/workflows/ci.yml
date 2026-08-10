@@ -107,6 +107,27 @@ jobs:
           docker push \
             europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }}
 
+      - name: Update database migration job
+        run: |
+          gcloud run jobs deploy bac-db-migrate \
+            --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
+            --region=europe-west1 \
+            --project=bac-exercise-generator-prod \
+            --command=alembic \
+            --args=upgrade,head \
+            --set-secrets="DATABASE_URL=database-url:latest" \
+            --service-account=758439681309-compute@developer.gserviceaccount.com \
+            --max-retries=0 \
+            --task-timeout=5m \
+            --quiet
+
+      - name: Run production database migrations
+        run: |
+          gcloud run jobs execute bac-db-migrate \
+            --region=europe-west1 \
+            --project=bac-exercise-generator-prod \
+            --wait
+
       - name: Deploy to Cloud Run
         run: |
           gcloud beta run deploy bac-exercise-generator \
