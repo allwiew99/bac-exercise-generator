@@ -130,18 +130,18 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud beta run deploy bac-exercise-generator \
-            --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
-            --region=europe-west1 \
-            --platform=managed \
-            --execution-environment=gen2 \
-            --sandbox-launcher \
-            --network=default \
-            --subnet=default \
-            --vpc-egress=private-ranges-only \
-            --cpu=1 \
-            --memory=1Gi \
-            --concurrency=4 \
-            --set-env-vars="LLM_PROVIDER=gemini,GEMINI_PROJECT=bac-exercise-generator-prod,GEMINI_LOCATION=europe-west1,GEMINI_MODEL=gemini-2.5-flash,FIREBASE_PROJECT_ID=bac-exercise-generator-prod,CODE_RUNNER_PROVIDER=sandbox,RATE_LIMITER_PROVIDER=redis,REDIS_HOST=10.76.187.139,REDIS_PORT=6379" \
-            --set-secrets="DATABASE_URL=database-url:latest" \
-            --quiet
+            gcloud beta run deploy bac-exercise-generator \
+              --image=europe-west1-docker.pkg.dev/bac-exercise-generator-prod/bac-exercise-generator/bac-exercise-generator:${{ github.sha }} \
+              --region=europe-west1 \
+              --platform=managed \
+              --execution-environment=gen2 \
+              --sandbox-launcher \
+              --network=default \
+              --subnet=default \
+              --vpc-egress=private-ranges-only \
+              --cpu=1 \
+              --memory=1Gi \
+              --concurrency=4 \
+              --set-env-vars='^@^LLM_PROVIDER=gemini@GEMINI_PROJECT=bac-exercise-generator-prod@GEMINI_LOCATION=europe-west1@GEMINI_MODEL=gemini-2.5-flash@FIREBASE_PROJECT_ID=bac-exercise-generator-prod@CODE_RUNNER_PROVIDER=sandbox@RATE_LIMITER_PROVIDER=redis@REDIS_HOST=10.76.187.139@REDIS_PORT=6379@CORS_ORIGINS=http://localhost:3000,https://bac-exercise-generator-frontend-758439681309.europe-west1.run.app' \
+              --set-secrets="DATABASE_URL=database-url:latest" \
+              --quiet
