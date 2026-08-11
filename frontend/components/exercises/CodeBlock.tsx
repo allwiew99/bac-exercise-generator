@@ -14,7 +14,7 @@ export function CodeBlock({ code }: { code: string }) {
       setCopyLabel("Copiat ✓");
       setTimeout(() => setCopyLabel("Copiază"), 1500);
     } catch {
-      // Clipboard API unavailable (e.g. insecure context) — no-op.
+      
     }
   };
 

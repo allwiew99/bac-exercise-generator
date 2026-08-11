@@ -18,12 +18,7 @@ export function applyTheme(theme: Theme): void {
   document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
-/**
- * Inlined into <head> via a blocking script in the root layout so the
- * correct theme class is present before first paint (no flash of the
- * wrong theme). Must not reference any module-scoped variable — it runs
- * as a raw string in the browser, outside the React/webpack bundle.
- */
+
 export const NO_FLASH_THEME_SCRIPT = `
 (function () {
   try {

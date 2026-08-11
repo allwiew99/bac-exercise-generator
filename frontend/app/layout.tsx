@@ -44,7 +44,7 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${karla.variable} ${jetBrainsMono.variable}`}
     >
       <head>
-        {/* Blocking, before paint: applies the stored theme class to avoid a flash of the wrong theme. */}
+        
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_THEME_SCRIPT }} />
       </head>
       <body className="min-h-screen">

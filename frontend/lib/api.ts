@@ -24,8 +24,6 @@ import {
 } from "@/schemas/submission";
 
 
-// Mock mode is available only during development.
-// It cannot activate accidentally in production.
 export const MOCK_MODE_ENABLED =
   process.env.NEXT_PUBLIC_USE_MOCK_API === "true" &&
   process.env.NODE_ENV !== "production";
@@ -34,10 +32,7 @@ export const MOCK_MODE_ENABLED =
 type RequestOptions = RequestInit & {
   schema: ZodType;
 
-  /**
-   * Attach the Firebase ID token.
-   * Defaults to true.
-   */
+  
   auth?: boolean;
 };
 
@@ -106,8 +101,6 @@ async function request(
   }
 
 
-  // Firebase tokens can expire.
-  // Retry exactly once with a refreshed token.
   if (
     res.status === 401 &&
     auth.currentUser
@@ -191,12 +184,7 @@ export async function getExerciseById(
 }
 
 
-/**
- * Submit the student's C++ solution.
- *
- * Backend:
- * POST /exercises/{exercise_id}/submissions
- */
+
 export async function submitSolution(
   exerciseId: number,
   body: SubmitSolutionRequest,
@@ -219,14 +207,7 @@ export async function submitSolution(
 }
 
 
-/**
- * Retrieve the official solution.
- *
- * Backend allows this only after the student
- * has made at least one submission.
- *
- * GET /exercises/{exercise_id}/solution
- */
+
 export async function getOfficialSolution(
   exerciseId: number,
 ): Promise<OfficialSolution> {

@@ -9,14 +9,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/**
- * Normalizes every backend/network failure shape into a single ApiError so
- * every consumer (TanStack Query `error`, form handlers) branches only on
- * `status`/`code`. Handles: `{error, detail}` (this backend's custom
- * exception handlers), FastAPI's default `{detail}` (string or a pydantic
- * validation array), and non-JSON/network failures. Never surfaces raw
- * response bodies or stack traces to the UI.
- */
+
 export async function normalizeError(
   res: Response,
   requestId?: string,
@@ -38,7 +31,6 @@ export async function normalizeError(
     if (typeof body.detail === "string") {
       detail = body.detail;
     } else if (Array.isArray(body.detail)) {
-      // FastAPI validation error array: [{ loc, msg, type }, ...]
       const messages = body.detail
         .map((item) =>
           isRecord(item) && typeof item.msg === "string" ? item.msg : null,

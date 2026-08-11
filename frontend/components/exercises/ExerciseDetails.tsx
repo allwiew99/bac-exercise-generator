@@ -10,13 +10,7 @@ import { hasId } from "@/schemas/exercise";
 
 type Props = {
   exercise: GeneratedExercise;
-  /** "result": just-generated, no persisted id yet (transitional — see
-   *  README "Future Backend Dependencies"), shows the post-generate CTAs
-   *  and a note that solving requires the backend's persisted-id contract.
-   *  "detail": persisted exercise viewed from `/exercises/[id]`, shows a
-   *  back link. Neither variant renders the official solution or
-   *  explanation — those only appear after a submission, in
-   *  SubmissionResult. */
+  
   variant: "result" | "detail";
   onGenerateAnother?: () => void;
 };

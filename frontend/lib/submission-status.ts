@@ -6,7 +6,7 @@ type StatusMeta = {
   label: string;
   tone: StatusTone;
   heading: string;
-  /** Shown without backend feedback; feedback (if any) is appended below it. */
+  
   defaultMessage: string;
 };
 
@@ -47,9 +47,7 @@ function isKnownStatus(status: string): status is KnownSubmissionStatus {
   return status in KNOWN_STATUS_META;
 }
 
-/** Falls back to a neutral, generic treatment for any status the UI
- * doesn't specifically know about yet — forward-compatible with backend
- * statuses added later without a frontend release. */
+
 export function submissionStatusMeta(status: string): StatusMeta {
   if (isKnownStatus(status)) {
     return KNOWN_STATUS_META[status];

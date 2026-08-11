@@ -15,10 +15,6 @@ export const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // The no-flash inline script in the root layout already applied the
-  // `dark` class to <html> before hydration; this lazy initializer just
-  // reads localStorage once to seed matching React state (SSR sees no
-  // `window` and falls back to "light", same as the script's own default).
   const [theme, setTheme] = useState<Theme>(() => getStoredTheme() ?? "light");
 
   const toggleTheme = useCallback(() => {

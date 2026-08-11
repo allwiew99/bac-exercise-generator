@@ -9,9 +9,6 @@ export function useSubmitSolution(exerciseId: number) {
 
   return useMutation<Submission, ApiError, SubmitSolutionRequest>({
     mutationFn: (body) => submitSolution(exerciseId, body),
-    // Compiling + running hidden tests has real cost and a submission is a
-    // graded record — never retried automatically, same rationale as
-    // useGenerateExercise.
     retry: false,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["exercises", exerciseId] });

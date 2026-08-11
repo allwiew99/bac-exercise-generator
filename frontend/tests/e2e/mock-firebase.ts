@@ -20,64 +20,14 @@ function fakeIdToken(uid: string, email: string): string {
   return `${header}.${payload}.`;
 }
 
-/**
- * Intercepts the Google Identity Toolkit / Secure Token REST endpoints the
- * Firebase Auth Web SDK calls under the hood, so the e2e smoke test can
- * exercise a real login form submission without hitting real Firebase or
- * Gemini services (per FRONTEND_HANDOFF.md §5.17: "do not hit real
- * Gemini/Firebase in CI").
- */
+
 export async function mockFirebaseAuth(
   page: Page,
   { uid = "smoke-test-uid", email = "student@exemplu.ro" } = {},
 ) {
   const idToken = fakeIdToken(uid, email);
 
-  await page.route("**/identitytoolkit.googleapis.com/**", async (route) => {
-    const url = route.request().url();
-
-    if (url.includes(":signInWithPassword") || url.includes(":signUp")) {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          kind: "identitytoolkit#VerifyPasswordResponse",
-          localId: uid,
-          email,
-          displayName: "",
-          idToken,
-          registered: true,
-          refreshToken: "smoke-test-refresh-token",
-          expiresIn: "3600",
-        }),
-      });
-      return;
-    }
-
-    if (url.includes(":lookup")) {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          kind: "identitytoolkit#GetAccountInfoResponse",
-          users: [
-            {
-              localId: uid,
-              email,
-              displayName: "",
-              emailVerified: true,
-              providerUserInfo: [],
-            },
-          ],
-        }),
-      });
-      return;
-    }
-
-    await route.continue();
-  });
-
-  await page.route("**/securetoken.googleapis.com/**", async (route) => {
+  await page.route("**/identitytoolkit.googleapis.comsecuretoken.googleapis.com/**", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",

@@ -47,8 +47,6 @@ describe("useSubmitSolution", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
-    // 500 is not the 401 case, so lib/api.ts's own retry-once logic never
-    // kicks in either — exactly one network call total.
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

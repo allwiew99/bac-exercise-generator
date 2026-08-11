@@ -20,7 +20,7 @@ export type Token = { text: string; kind: TokenKind };
 const TOKEN_RE =
   /(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(#\w+)|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)|(\s+)|([^\sA-Za-z_0-9]+)/g;
 
-/** Tokenizes one line of C++ source for syntax highlighting. */
+
 export function highlightLine(line: string): Token[] {
   const tokens: Token[] = [];
   const re = new RegExp(TOKEN_RE.source, "g");
@@ -49,8 +49,7 @@ export function highlightCode(code: string): Token[][] {
   return code.split("\n").map(highlightLine);
 }
 
-/** Shared color mapping for both the read-only CodeBlock and the writable
- * CppEditor, so highlighted solution code and the editor look consistent. */
+
 export const TOKEN_KIND_CLASS: Record<TokenKind, string> = {
   comment: "text-[var(--color-text-secondary)]",
   string: "text-[var(--color-success)]",

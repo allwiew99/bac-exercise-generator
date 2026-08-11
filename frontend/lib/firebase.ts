@@ -19,7 +19,5 @@ function createFirebaseApp(): FirebaseApp {
   return initializeApp(firebaseConfig());
 }
 
-// Browser-only singleton. Firebase Auth's JS SDK requires `window`, so this
-// module must never be imported from a server component.
 export const firebaseApp: FirebaseApp = createFirebaseApp();
 export const auth: Auth = getAuth(firebaseApp);

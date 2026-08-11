@@ -11,14 +11,7 @@ import type {
   SubmitSolutionRequest,
 } from "@/schemas/submission";
 
-/**
- * Full fixture shape — includes the official solution/explanation/hidden
- * test cases. This is the "answer key" and is never returned directly by
- * any mock function that stands in for generate/list/get; only
- * `toSafeView()` (public fields) or `getOfficialSolution()` (gated on a
- * submission existing) may expose parts of it. Mirrors, in mock mode, the
- * same public/private split the real backend is expected to enforce.
- */
+
 type FullExerciseFixture = {
   id: number;
   topic: string;
@@ -30,9 +23,6 @@ type FullExerciseFixture = {
   test_cases: { input: string; expected_output: string }[];
 };
 
-// Development-only fixtures for NEXT_PUBLIC_USE_MOCK_API=true. Mirrors the
-// dataset used in the DC visual prototype so mock mode matches the design
-// reference. Never imported when running against production.
 const MOCK_EXERCISES: FullExerciseFixture[] = [
   {
     id: 1,
@@ -121,9 +111,7 @@ function forbidden(detail: string): ApiError {
   return { status: 403, code: "forbidden", detail };
 }
 
-/** The only bridge from the private fixture (answer key included) to what
- * generate/list/get are allowed to return — mirrors the real schema-layer
- * split in schemas/exercise.ts. */
+
 function toSafeView(fixture: FullExerciseFixture): ExerciseSafe {
   const submissions = mockSubmissionsByExercise.get(fixture.id) ?? [];
   return {
@@ -146,11 +134,6 @@ function evaluateSubmission(
 ): Omit<Submission, "id" | "exercise_id" | "created_at"> {
   const total = fixture.test_cases.length;
 
-  // Deterministic trigger substrings let tests exercise every UX state on
-  // demand; the plain heuristic below gives a sensible default for manual
-  // demoing (submitting the unmodified starter template fails to compile
-  // for lack of a real solution, submitting anything with a return in
-  // main "passes").
   if (code.includes("FAIL_COMPILE")) {
     return {
       score: 0,

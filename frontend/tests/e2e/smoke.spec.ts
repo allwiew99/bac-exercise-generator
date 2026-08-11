@@ -26,12 +26,8 @@ test("login -> generate -> open exercise -> submit -> reveal solution -> history
     page.getByText("Generăm și validăm exercițiul..."),
   ).toBeVisible();
 
-  // Preferred production flow: the backend returns a persisted id and the
-  // student lands directly on the working page for that exercise.
   await expect(page).toHaveURL(/\/exercises\/\d+$/, { timeout: 15_000 });
 
-  // Before any submission: statement + editor are visible, the official
-  // solution/explanation are not.
   await expect(page.getByText("vectori").first()).toBeVisible();
   await expect(page.getByText("Rezolvarea ta")).toBeVisible();
   await expect(page.getByText("Soluție C++")).not.toBeVisible();
@@ -47,8 +43,6 @@ test("login -> generate -> open exercise -> submit -> reveal solution -> history
   });
   await expect(page.getByText(/teste trecute/)).toBeVisible();
 
-  // Official solution is only offered post-submission, and only appears
-  // after the explicit reveal click.
   await expect(page.getByText("Soluție C++")).not.toBeVisible();
   await page
     .getByRole("button", { name: /Vezi soluția oficială/ })

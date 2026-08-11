@@ -23,9 +23,6 @@ describe("SubmissionSchema", () => {
   });
 
   it("does not reject a status value the frontend doesn't specifically know about yet", () => {
-    // Deliberately not over-constrained per the product spec — a backend
-    // adding a new status shouldn't require a synchronized frontend release
-    // just to avoid a parse failure.
     const result = SubmissionSchema.safeParse({
       id: 1,
       exercise_id: 15,

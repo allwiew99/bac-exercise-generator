@@ -9,8 +9,6 @@ export function useGenerateExercise() {
 
   return useMutation<GeneratedExercise, ApiError, GenerateExerciseRequest>({
     mutationFn: (body: GenerateExerciseRequest) => generateExercise(body),
-    // Generation has real AI/compute cost and could create duplicate
-    // exercises on retry — never retried automatically (see lib/query-client.ts).
     retry: false,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["exercises"] });

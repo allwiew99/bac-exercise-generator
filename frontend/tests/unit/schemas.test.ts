@@ -8,11 +8,6 @@ import {
   hasId,
 } from "@/schemas/exercise";
 
-// Shape the *current* backend actually sends today for GET /exercises/{id}
-// and GET /exercises/ — still includes the official solution/explanation
-// and the full (undifferentiated hidden) test_cases array. The safe
-// schemas below are the one place that's allowed to see this shape; every
-// other consumer only ever sees what survives parsing.
 const legacyFullExercisePayload = {
   id: 42,
   topic: "vectori",

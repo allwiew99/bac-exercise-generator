@@ -6,9 +6,7 @@ import { formatDateRo } from "@/lib/format-date";
 import type { ExerciseSafe } from "@/schemas/exercise";
 
 export function ExerciseCard({ exercise }: { exercise: ExerciseSafe }) {
-  // Progress fields are an extension point for a backend that doesn't
-  // populate them yet (see README "Future Backend Dependencies") — the
-  // row below only renders once at least one of them is actually present.
+  
   const hasProgressInfo =
     exercise.latest_score !== undefined ||
     exercise.submission_count !== undefined ||

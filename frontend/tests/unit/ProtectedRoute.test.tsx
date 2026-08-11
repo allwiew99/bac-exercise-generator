@@ -11,9 +11,6 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
 }));
 
-// AuthProvider (imported transitively via AuthContext) pulls in
-// lib/firebase, which initializes the real Firebase SDK on import — stub
-// it so this component test doesn't need real Firebase env vars.
 vi.mock("@/lib/firebase", () => ({
   auth: { currentUser: null },
 }));

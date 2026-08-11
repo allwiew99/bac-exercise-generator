@@ -19,7 +19,7 @@ export function ExerciseForm({
 }: {
   busy: boolean;
   onSubmit: (request: GenerateExerciseRequest) => void;
-  /** Server-side validation error (400/422) surfaced above the form. */
+  
   formError?: string;
 }) {
   const [topic, setTopic] = useState("");

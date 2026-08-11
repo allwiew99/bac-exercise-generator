@@ -13,14 +13,7 @@ int main() {
 }
 `;
 
-/**
- * A small, dependency-free C++ editor: a transparent <textarea> (for real
- * caret/selection/keyboard behavior) layered over a <pre> that renders the
- * same text through the existing highlightCode tokenizer, plus a
- * synced-scroll line-number gutter. Chosen over Monaco to keep this
- * lightweight and avoid Monaco's SSR/worker wiring cost in Next.js for a
- * single-language editor — see FRONTEND_HANDOFF follow-up decision log.
- */
+
 export function CppEditor({
   value,
   onChange,

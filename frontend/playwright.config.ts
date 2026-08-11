@@ -1,7 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Smoke-only, per the handoff: exercises one flow with Firebase/backend
-// mocked (NEXT_PUBLIC_USE_MOCK_API=true). Never hits real Gemini/Firebase.
 export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 30_000,

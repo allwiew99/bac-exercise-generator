@@ -25,7 +25,6 @@ export function createQueryClient(): QueryClient {
         refetchOnWindowFocus: false,
       },
       mutations: {
-        // Generation has real AI/compute cost — never auto-retry it.
         retry: false,
       },
     },
