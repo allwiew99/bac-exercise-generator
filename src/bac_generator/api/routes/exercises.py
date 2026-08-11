@@ -41,12 +41,17 @@ from bac_generator.services.local_code_runner import LocalCodeRunner
 from bac_generator.services.rate_limiter import (
     InMemoryRateLimiter,
     RateLimiterProtocol,
+    RedisRateLimiter,
 )
-from bac_generator.services.sandbox_code_runner import SandboxCodeRunner
+from bac_generator.services.sandbox_code_runner import (
+    SandboxCodeRunner,
+)
 from bac_generator.services.submission_evaluator import (
     SubmissionEvaluator,
 )
-from bac_generator.services.submission_service import SubmissionService
+from bac_generator.services.submission_service import (
+    SubmissionService,
+)
 
 router = APIRouter(
     prefix="/exercises",
@@ -54,7 +59,8 @@ router = APIRouter(
 )
 
 
-rate_limiter = InMemoryRateLimiter()
+memory_rate_limiter = InMemoryRateLimiter()
+redis_rate_limiter: RedisRateLimiter | None = None
 
 
 def to_safe_exercise_read(
@@ -178,7 +184,30 @@ def get_submission_evaluator() -> SubmissionEvaluator:
 
 
 def get_rate_limiter() -> RateLimiterProtocol:
-    return rate_limiter
+    global redis_rate_limiter
+
+    if settings.rate_limiter_provider == "memory":
+        return memory_rate_limiter
+
+    if settings.rate_limiter_provider == "redis":
+        if not settings.redis_host:
+            raise ValueError(
+                "REDIS_HOST must be configured "
+                "when RATE_LIMITER_PROVIDER=redis."
+            )
+
+        if redis_rate_limiter is None:
+            redis_rate_limiter = RedisRateLimiter(
+                host=settings.redis_host,
+                port=settings.redis_port,
+            )
+
+        return redis_rate_limiter
+
+    raise ValueError(
+        "Unsupported rate limiter provider: "
+        f"{settings.rate_limiter_provider}"
+    )
 
 
 async def enforce_generate_rate_limit(
