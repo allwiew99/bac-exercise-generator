@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "queries": [
+    {
+      "id": "pseudocode-digit-square-sum",
+      "text": "Algoritm în pseudocod care parcurge cifrele unui număr cu %10 și calculează suma pătratelor cifrelor.",
+      "topic": "pseudocode",
+      "topic_filter": "pseudocode",
+      "relevance_groups": [
+        {
+          "id": "2018-v02-digit-square-sum",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v02-mi-cpp-s1-ex2",
+            "bac-2018-exam-v02-sn-cpp-s1-ex2"
+          ],
+          "rationale": "MI și SN sunt variante echivalente ale algoritmului care adună x de x ori pentru fiecare cifră x."
+        }
+      ]
+    },
+    {
+      "id": "pseudocode-exclusive-multiples-interval",
+      "text": "Pseudocod cu cât timp care numără în intervalul [p,q] valorile divizibile cu exact unul dintre m și n.",
+      "topic": "pseudocode",
+      "topic_filter": "pseudocode",
+      "relevance_groups": [
+        {
+          "id": "2019-v04-exclusive-multiples",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-exam-v04-mi-cpp-s2-ex1",
+            "bac-2019-exam-v04-sn-cpp-s2-ex1"
+          ],
+          "rationale": "Ambele profile conțin același algoritm cu s1, s2 și expresia s1-2*s2."
+        }
+      ]
+    },
+    {
+      "id": "arrays-replace-special-values",
+      "text": "Program C/C++ care modifică un tablou unidimensional, înlocuind elementele din mulțimea {2,0,1,9} cu suma lor.",
+      "topic": "arrays",
+      "topic_filter": "arrays",
+      "relevance_groups": [
+        {
+          "id": "2019-simulation-replace-2019-digits",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-simulation-sn-cpp-s3-ex2"
+          ],
+          "rationale": "Exercițiul cere exact înlocuirea în memorie a valorilor 2, 0, 1 și 9 cu suma lor."
+        }
+      ]
+    },
+    {
+      "id": "binary-search-comparison-path-57",
+      "text": "Căutare binară în tabloul ordonat (1,4,6,10,56,57,76): succesiunea elementelor comparate cu x=57.",
+      "topic": "binary search",
+      "topic_filter": "arrays",
+      "relevance_groups": [
+        {
+          "id": "2016-v04-binary-search-57",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v04-sn-cpp-s3-ex2"
+          ],
+          "rationale": "Documentul conține exact tabloul, valoarea 57 și cerința traseului de comparații."
+        }
+      ]
+    },
+    {
+      "id": "binary-search-construct-array-path",
+      "text": "Construiți un tablou ordonat pentru care căutarea binară a lui 7 compară, în ordine, valorile 4, 16, 7.",
+      "topic": "binary search",
+      "topic_filter": "arrays",
+      "relevance_groups": [
+        {
+          "id": "2020-v06-binary-search-construct",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v06-sn-cpp-s2-ex3"
+          ],
+          "rationale": "Exercițiul solicită exact un exemplu de tablou care produce comparațiile 4, 16, 7 pentru x=7."
+        }
+      ]
+    },
+    {
+      "id": "matrices-fill-index-sum-pattern",
+      "text": "Completați instrucțiunile cu i și j pentru o matrice 5x5 ale cărei linii sunt 0..4, 2..6, 4..8, 6..10, 8..12.",
+      "topic": "matrices",
+      "topic_filter": "matrices",
+      "relevance_groups": [
+        {
+          "id": "2019-simulation-matrix-linear-pattern",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-simulation-mi-cpp-s2-ex3"
+          ],
+          "rationale": "Documentul prezintă exact matricea 5x5 și buclele for(i), for(j) incomplete."
+        }
+      ]
+    },
+    {
+      "id": "matrices-middle-column-symmetry",
+      "text": "Program pentru verificarea unei matrice cu număr impar de coloane, simetrică față de coloana din mijloc.",
+      "topic": "matrices",
+      "topic_filter": "matrices",
+      "relevance_groups": [
+        {
+          "id": "2019-v04-middle-column-symmetry",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-exam-v04-mi-cpp-s3-ex2"
+          ],
+          "rationale": "Exercițiul definește și verifică exact simetria fiecărei linii față de coloana mediană."
+        }
+      ]
+    },
+    {
+      "id": "strings-mirror-word-pairs",
+      "text": "Text cu cuvinte: afișați perechile de cuvinte distincte care sunt unul inversul celuilalt, de exemplu animate și etamina.",
+      "topic": "strings",
+      "topic_filter": "strings",
+      "relevance_groups": [
+        {
+          "id": "2020-v05-mirror-words",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v05-mi-cpp-s3-ex2"
+          ],
+          "rationale": "Documentul definește cuvintele «în oglindă» și folosește exact exemplul animate/etamina."
+        }
+      ]
+    },
+    {
+      "id": "strings-extract-angle-bracket-quotes",
+      "text": "Prelucrarea unui text pentru identificarea citatelor delimitate de caracterele < și >.",
+      "topic": "strings",
+      "topic_filter": "strings",
+      "relevance_groups": [
+        {
+          "id": "2020-v02-angle-bracket-quotes",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v02-mi-cpp-s3-ex2"
+          ],
+          "rationale": "Exercițiul definește un citat exact ca secvență începută cu < și terminată cu >."
+        }
+      ]
+    },
+    {
+      "id": "files-longest-nonuniform-sequence",
+      "text": "Fișierul bac.txt conține un șir de numere; determinați eficient o secvență de lungime maximă.",
+      "topic": "files",
+      "topic_filter": "files",
+      "relevance_groups": [
+        {
+          "id": "2018-v02-sn-pairwise-nonuniform",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v02-sn-cpp-s3-ex4"
+          ],
+          "rationale": "Varianta SN cere exact lungimea maximă când oricare doi vecini sunt diferiți."
+        },
+        {
+          "id": "2018-v02-mi-three-term-nonuniform",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v02-mi-cpp-s3-ex4"
+          ],
+          "rationale": "Varianta MI cere tot lungimea maximă a unei secvențe neuniforme, cu condiția distinctă pentru oricare trei termeni consecutivi."
+        },
+        {
+          "id": "2017-v04-mi-maximum-even-sequences",
+          "grade": 2,
+          "document_ids": [
+            "bac-2017-exam-v04-mi-cpp-s3-ex4"
+          ],
+          "rationale": "Exercițiul determină eficient secvențele pare de lungime maximă, o potrivire puternică dar mai specifică decât intenția generală."
+        }
+      ]
+    },
+    {
+      "id": "files-maximum-even-sequences",
+      "text": "Fișier cu numere: analizați secvențele maximale de termeni pari consecutivi și determinați secvențele de lungime maximă.",
+      "topic": "files",
+      "topic_filter": "files",
+      "relevance_groups": [
+        {
+          "id": "2017-v04-mi-count-max-even-sequences",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v04-mi-cpp-s3-ex4"
+          ],
+          "rationale": "Varianta MI cere numărul secvențelor pare de lungime maximă."
+        },
+        {
+          "id": "2017-v04-sn-even-sequence-length",
+          "grade": 2,
+          "document_ids": [
+            "bac-2017-exam-v04-sn-cpp-s3-ex4"
+          ],
+          "rationale": "Varianta SN folosește aceeași definiție a secvenței pare maximale, cu o cerință finală diferită."
+        }
+      ]
+    },
+    {
+      "id": "files-largest-even-after-three-odd",
+      "text": "Din bac.txt determinați cei mai mari doi termeni pari precedați de exact trei termeni impari.",
+      "topic": "files",
+      "topic_filter": "files",
+      "relevance_groups": [
+        {
+          "id": "2016-v09-mi-even-after-three-odd",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v09-mi-cpp-s3-ex4"
+          ],
+          "rationale": "Varianta MI cere exact cei mai mari doi pari precedați de trei termeni impari; varianta SN diferă material și nu este etichetată."
+        }
+      ]
+    },
+    {
+      "id": "files-record-like-local-peaks",
+      "text": "Fișierul bac.txt: afișați toate vârfurile locale, adică termenii care nu sunt precedați de un termen mai mare.",
+      "topic": "files",
+      "topic_filter": "files",
+      "relevance_groups": [
+        {
+          "id": "2019-v04-sn-strict-record-peaks",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-exam-v04-sn-cpp-s3-ex3"
+          ],
+          "rationale": "Varianta SN corespunde direct definiției din interogare: niciun predecesor strict mai mare."
+        },
+        {
+          "id": "2019-v04-mi-equal-aware-record-peaks",
+          "grade": 2,
+          "document_ids": [
+            "bac-2019-exam-v04-mi-cpp-s3-ex3"
+          ],
+          "rationale": "Varianta MI tratează suplimentar egalitățile consecutive și rămâne o potrivire puternică, dar distinctă."
+        }
+      ]
+    },
+    {
+      "id": "graphs-adjacency-matrix-subgraph-degrees",
+      "text": "Graf neorientat dat prin matrice de adiacență: construiți un subgraf cu un nod de grad 1 și un nod de grad 2.",
+      "topic": "graphs",
+      "topic_filter": "graphs",
+      "relevance_groups": [
+        {
+          "id": "2017-v07-subgraph-degree-constraints",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v07-mi-cpp-s2-ex3"
+          ],
+          "rationale": "Documentul cere exact nodurile și muchiile unui subgraf cu gradele 1 și 2."
+        }
+      ]
+    },
+    {
+      "id": "graphs-components-from-adjacency-nonzeros",
+      "text": "Determinați numărul extrem de componente conexe ale unui graf neorientat cunoscând numărul de noduri și elementele nenule ale matricei de adiacență.",
+      "topic": "graphs",
+      "topic_filter": "graphs",
+      "relevance_groups": [
+        {
+          "id": "2016-v09-maximum-components",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v09-mi-cpp-s2-ex2"
+          ],
+          "rationale": "Exercițiul cere maximul componentelor pentru 7 noduri și 10 elemente nenule."
+        },
+        {
+          "id": "2016-v10-minimum-components",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v10-mi-cpp-s2-ex2"
+          ],
+          "rationale": "Exercițiul distinct cere minimul componentelor pentru 5 noduri și 6 elemente nenule."
+        }
+      ]
+    },
+    {
+      "id": "graphs-forest-node-count",
+      "text": "Numărul de noduri al unui graf neorientat fără cicluri, cu 26 de muchii și 12 componente conexe.",
+      "topic": "graphs",
+      "topic_filter": "graphs",
+      "relevance_groups": [
+        {
+          "id": "2018-v09-forest-nodes",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v09-mi-cpp-s2-ex2"
+          ],
+          "rationale": "Documentul conține exact valorile 26 de muchii, 12 componente și condiția fără cicluri."
+        }
+      ]
+    },
+    {
+      "id": "trees-leaves-from-parent-vector",
+      "text": "Arbore reprezentat prin vectorul de tați: determinați numărul nodurilor frunză.",
+      "topic": "trees",
+      "topic_filter": "trees",
+      "relevance_groups": [
+        {
+          "id": "2020-v06-leaves-parent-vector",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v06-mi-cpp-s1-ex4"
+          ],
+          "rationale": "Exercițiul cere exact numărul frunzelor din vectorul de tați cu 10 noduri."
+        }
+      ]
+    },
+    {
+      "id": "trees-direct-children-from-edges",
+      "text": "Arbore cu rădăcină și muchii date: enumerați descendenții direcți, adică fiii nodului 5.",
+      "topic": "trees",
+      "topic_filter": "trees",
+      "relevance_groups": [
+        {
+          "id": "2016-v10-children-of-node-five",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v10-mi-cpp-s2-ex3"
+          ],
+          "rationale": "Documentul cere explicit fiii nodului 5 într-un arbore definit prin muchii."
+        }
+      ]
+    },
+    {
+      "id": "subprograms-identical-digit-interval",
+      "text": "Definiți subprogramul care afișează toate numerele din [a,b] având toate cifrele identice.",
+      "topic": "subprograms",
+      "topic_filter": "subprograms",
+      "relevance_groups": [
+        {
+          "id": "2017-v03-identice",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v03-mi-cpp-s3-ex3"
+          ],
+          "rationale": "Exercițiul solicită definiția completă a subprogramului identice pentru intervalul [a,b]."
+        }
+      ]
+    },
+    {
+      "id": "subprograms-equal-remainders-count",
+      "text": "Definiți un subprogram cu parametrii n, x, y, r care numără valorile din [1,n] cu același rest r la împărțirea la x și y.",
+      "topic": "subprograms",
+      "topic_filter": "subprograms",
+      "relevance_groups": [
+        {
+          "id": "2018-v02-resturi",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v02-mi-cpp-s3-ex3"
+          ],
+          "rationale": "Documentul definește exact subprogramul resturi cu cei patru parametri și condiția de congruență."
+        }
+      ]
+    },
+    {
+      "id": "recursion-output-halving-call",
+      "text": "Urmăriți apelul unui subprogram recursiv f(9) care apelează f(x/2) și afișează cifre înainte și după apel.",
+      "topic": "recursion",
+      "topic_filter": "subprograms",
+      "relevance_groups": [
+        {
+          "id": "2020-v02-recursive-halving-output",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v02-mi-cpp-s1-ex2"
+          ],
+          "rationale": "Codul din document conține exact apelul f(9), recurența f(x/2) și afișări pe ambele laturi ale apelului."
+        }
+      ]
+    },
+    {
+      "id": "recursion-output-minus-three",
+      "text": "Determinați afișarea subprogramului recursiv f(7) care scrie n%2 și continuă cu f(n-3).",
+      "topic": "recursion",
+      "topic_filter": "subprograms",
+      "relevance_groups": [
+        {
+          "id": "2018-v01-recursive-minus-three",
+          "grade": 3,
+          "document_ids": [
+            "bac-2018-exam-v01-mi-cpp-s3-ex1"
+          ],
+          "rationale": "Documentul conține exact subprogramul f, apelul f(7), afișarea n%2 și recurența n-3."
+        }
+      ]
+    },
+    {
+      "id": "number-processing-exactly-three-digits",
+      "text": "Alegeți expresia care este adevărată dacă și numai dacă numărul natural x are exact trei cifre.",
+      "topic": "number processing",
+      "topic_filter": "number processing",
+      "relevance_groups": [
+        {
+          "id": "2017-v03-three-digits-language-variants",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v03-mi-cpp-s1-ex1",
+            "bac-2017-exam-v03-sn-pascal-s1-ex1"
+          ],
+          "rationale": "C/C++ MI și Pascal SN sunt variante de limbaj ale aceleiași cerințe din 2017."
+        },
+        {
+          "id": "2016-v10-three-digits-distinct-exam",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v10-mi-cpp-s1-ex1"
+          ],
+          "rationale": "Exercițiul din 2016 are aceeași intenție, dar este o apariție de examen distinctă și rămâne grup separat."
+        }
+      ]
+    },
+    {
+      "id": "number-processing-modulo-2020-maximum",
+      "text": "Care este valoarea maximă posibilă a expresiei x%2020 pentru x număr natural sub 10^9?",
+      "topic": "number processing",
+      "topic_filter": "number processing",
+      "relevance_groups": [
+        {
+          "id": "2020-v05-modulo-2020",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v05-mi-cpp-s1-ex1",
+            "bac-2020-exam-v05-sn-cpp-s1-ex1"
+          ],
+          "rationale": "MI și SN conțin aceeași întrebare și aceleași opțiuni despre maximul lui x%2020."
+        }
+      ]
+    },
+    {
+      "id": "divisibility-count-divisors-sqrt",
+      "text": "Completați algoritmul eficient care numără divizorii pozitivi ai lui n testând d până la rădăcina pătrată.",
+      "topic": "divisibility",
+      "topic_filter": "divisibility",
+      "relevance_groups": [
+        {
+          "id": "2019-simulation-divisor-count-profile-variants",
+          "grade": 3,
+          "document_ids": [
+            "bac-2019-simulation-mi-cpp-s1-ex3",
+            "bac-2019-simulation-sn-cpp-s1-ex3"
+          ],
+          "rationale": "MI recursiv și SN iterativ sunt variante de profil ale aceleiași idei de numărare în perechi până la sqrt(n)."
+        }
+      ]
+    },
+    {
+      "id": "divisibility-gcd-descending-candidate",
+      "text": "Completați o secvență care pornește de la min(x,y) și scade candidatul până găsește cel mai mare divizor comun.",
+      "topic": "divisibility",
+      "topic_filter": "divisibility",
+      "relevance_groups": [
+        {
+          "id": "2016-v09-gcd-descending-cpp",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v09-sn-cpp-s2-ex2"
+          ],
+          "rationale": "Secvența C/C++ pornește d de la min(x,y) și îl decrementează până la CMMDC."
+        },
+        {
+          "id": "2017-v03-gcd-descending-pascal",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v03-sn-pascal-s2-ex2"
+          ],
+          "rationale": "Exercițiul Pascal distinct folosește același tip de căutare descrescătoare; fiind alt examen rămâne grup separat."
+        }
+      ]
+    },
+    {
+      "id": "backtracking-three-item-plates-incompatibility",
+      "text": "Backtracking pentru platouri cu trei tipuri distincte, fără a permite împreună o anumită pereche incompatibilă; determinați următoarea soluție.",
+      "topic": "combinatorics/backtracking",
+      "topic_filter": "combinatorics/backtracking",
+      "relevance_groups": [
+        {
+          "id": "2020-model-cake-plates",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-model-mi-cpp-s1-ex3"
+          ],
+          "rationale": "Modelul 2020 generează combinații de trei prăjituri și interzice perechea căpșune-piersici."
+        },
+        {
+          "id": "2016-v10-cake-plates",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v10-mi-cpp-s3-ex2"
+          ],
+          "rationale": "Examenul 2016 este un exercițiu distinct cu trei prăjituri și perechea mure-fragi interzisă."
+        }
+      ]
+    },
+    {
+      "id": "backtracking-topological-orderings",
+      "text": "Generați prin backtracking toate sortările topologice ale mulțimii {1,2,3,4,5,6} pentru perechi de precedență date.",
+      "topic": "combinatorics/backtracking",
+      "topic_filter": "combinatorics/backtracking",
+      "relevance_groups": [
+        {
+          "id": "2017-v07-topological-orderings",
+          "grade": 3,
+          "document_ids": [
+            "bac-2017-exam-v07-mi-cpp-s3-ex2"
+          ],
+          "rationale": "Documentul definește sortarea topologică și generează exact șirurile pentru mulțimea cu șase elemente."
+        }
+      ]
+    },
+    {
+      "id": "unclassified-pseudocode-even-digit-presence",
+      "text": "Algoritm în pseudocod care verifică pentru fiecare cifră pară 0,2,4,6,8 dacă apare într-un număr și cere valorile afișate plus programul C/C++.",
+      "topic": "unclassified",
+      "topic_filter": "unclassified",
+      "relevance_groups": [
+        {
+          "id": "2020-v06-even-digit-presence",
+          "grade": 3,
+          "document_ids": [
+            "bac-2020-exam-v06-mi-cpp-s2-ex1",
+            "bac-2020-exam-v06-sn-cpp-s2-ex1"
+          ],
+          "rationale": "MI și SN sunt variante echivalente ale algoritmului care afișează prezența cifrelor pare și cere transcrierea în C/C++."
+        }
+      ]
+    },
+    {
+      "id": "unclassified-strcpy-strlen-substring",
+      "text": "Ce afișează o secvență C/C++ cu strcpy(s1,\"bacalaureat\"), strlen, copiere de la s1+5 și terminator nul?",
+      "topic": "unclassified",
+      "topic_filter": "unclassified",
+      "relevance_groups": [
+        {
+          "id": "2016-v09-bacalaureat-string-library",
+          "grade": 3,
+          "document_ids": [
+            "bac-2016-exam-v09-mi-cpp-s2-ex3"
+          ],
+          "rationale": "Documentul conține exact șirul bacalaureat, strlen, strcpy(s2,s1+5) și s2[3]='\\0'."
+        }
+      ]
+    }
+  ]
+}

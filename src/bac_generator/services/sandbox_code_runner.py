@@ -180,6 +180,7 @@ for test in tests:
     if actual_output != expected_output:
         print(
             "Program output does not match expected output. "
+            f"Input: {test['input'].strip()!r}. "
             f"Expected: {expected_output!r}. "
             f"Actual: {actual_output!r}.",
             file=sys.stderr,

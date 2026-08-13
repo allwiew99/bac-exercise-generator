@@ -8,6 +8,7 @@ from bac_generator.api.dependencies.auth import (
     CurrentUser,
     get_current_user,
 )
+from bac_generator.api.routes import exercises as exercises_routes
 from bac_generator.api.routes.exercises import (
     get_code_validator,
     get_exercise_repository,
@@ -16,6 +17,7 @@ from bac_generator.api.routes.exercises import (
     get_submission_evaluator,
     get_submission_repository,
 )
+from bac_generator.core.config import settings
 from bac_generator.core.exceptions import (
     ExerciseGenerationError,
     LLMResponseError,
@@ -300,7 +302,7 @@ class FakeOllamaClient:
             topic="vectori",
             difficulty=Difficulty.MEDIUM,
             statement="Enunț de test.",
-            solution="Soluție de test.",
+            solution="int main() { return 0; }",
             explanation="Explicație de test.",
             test_cases=[
                 ExerciseTestCase(
@@ -336,7 +338,7 @@ class FakeInvalidTopicLLMClient:
             topic="matrici",
             difficulty=Difficulty.MEDIUM,
             statement="Enunț de test.",
-            solution="Soluție de test.",
+            solution="int main() { return 0; }",
             explanation="Explicație de test.",
             test_cases=[
                 ExerciseTestCase(
@@ -494,6 +496,72 @@ def test_list_exercises_returns_safe_exercises() -> None:
         assert "explanation" not in body[1]
         assert "test_cases" not in body[1]
 
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.mark.parametrize("path", ["/exercises/", "/exercises/1"])
+def test_get_exercise_endpoints_do_not_construct_rag_dependencies(
+    monkeypatch: pytest.MonkeyPatch,
+    path: str,
+) -> None:
+    def fail_if_constructed() -> None:
+        raise AssertionError("RAG dependency was constructed for a GET request")
+
+    monkeypatch.setattr(
+        exercises_routes,
+        "VertexEmbeddingClient",
+        fail_if_constructed,
+    )
+    monkeypatch.setattr(
+        exercises_routes,
+        "PineconeRepository",
+        fail_if_constructed,
+    )
+    monkeypatch.setattr(
+        exercises_routes,
+        "Reranker",
+        fail_if_constructed,
+    )
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
+    app.dependency_overrides[get_submission_repository] = (
+        FakeSubmissionRepository
+    )
+
+    try:
+        response = client.get(path)
+
+        assert response.status_code == 200
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_generate_fail_open_covers_rag_dependency_initialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_during_initialization() -> None:
+        raise RuntimeError("embedding client initialization failed")
+
+    monkeypatch.setattr(settings, "rag_enabled", True)
+    monkeypatch.setattr(settings, "rag_fail_open", True)
+    monkeypatch.setattr(settings, "reranker_enabled", False)
+    monkeypatch.setattr(
+        exercises_routes,
+        "VertexEmbeddingClient",
+        fail_during_initialization,
+    )
+    app.dependency_overrides[get_llm_client] = FakeOllamaClient
+    app.dependency_overrides[get_code_validator] = FakeCodeValidator
+    app.dependency_overrides[get_exercise_repository] = FakeExerciseRepository
+
+    try:
+        response = client.post(
+            "/exercises/generate",
+            json={"topic": "vectori", "difficulty": "medium"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["topic"] == "vectori"
     finally:
         app.dependency_overrides.clear()
 

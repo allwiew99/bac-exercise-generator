@@ -3,6 +3,11 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+MAX_STATEMENT_CHARS = 1800
+MAX_SOLUTION_CHARS = 5000
+MAX_EXPLANATION_CHARS = 1800
+MAX_TEST_VALUE_CHARS = 500
+
 
 class Difficulty(StrEnum):
     EASY = "easy"
@@ -12,8 +17,8 @@ class Difficulty(StrEnum):
 
 
 class ExerciseTestCase(BaseModel):
-    input: str
-    expected_output: str
+    input: str = Field(description="At most 500 characters.")
+    expected_output: str = Field(description="At most 500 characters.")
     is_hidden: bool = True
 
 
@@ -30,9 +35,9 @@ class ExerciseRequest(BaseModel):
 class ExerciseResponse(BaseModel):
     topic: str
     difficulty: Difficulty
-    statement: str
-    solution: str
-    explanation: str
+    statement: str = Field(description="At most 1,800 characters.")
+    solution: str = Field(description="At most 5,000 characters.")
+    explanation: str = Field(description="At most 1,800 characters.")
     test_cases: list[ExerciseTestCase]
 
 

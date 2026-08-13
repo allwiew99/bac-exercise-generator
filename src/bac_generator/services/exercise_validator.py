@@ -1,13 +1,38 @@
 import logging
+import re
 
 from bac_generator.core.exceptions import (
     CodeCompilationError,
     ExerciseValidationError,
 )
-from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
+from bac_generator.schemas.exercise import (
+    MAX_EXPLANATION_CHARS,
+    MAX_SOLUTION_CHARS,
+    MAX_STATEMENT_CHARS,
+    MAX_TEST_VALUE_CHARS,
+    ExerciseRequest,
+    ExerciseResponse,
+)
 from bac_generator.services.code_validator_protocol import CodeValidatorProtocol
 
 logger = logging.getLogger(__name__)
+
+_MAIN_FUNCTION_PATTERN = re.compile(
+    r"\b(?:int|signed)\s+main\s*\(",
+)
+_FORBIDDEN_FILE_IO_PATTERN = re.compile(
+    r"\b(?:std\s*::\s*)?(?:ifstream|ofstream|fstream)\b"
+    r"|\bfreopen\s*\("
+    r"|\.\s*open\s*\(",
+)
+_NAMED_FILE_PATTERN = re.compile(
+    r'''["'][^"'\n]+\.(?:txt|in|out|dat|csv)["']''',
+    flags=re.IGNORECASE,
+)
+_CPP_COMMENT_PATTERN = re.compile(
+    r"//[^\n]*|/\*.*?\*/",
+    flags=re.DOTALL,
+)
 
 
 class ExerciseValidator:
@@ -52,6 +77,21 @@ class ExerciseValidator:
                 "The generated 'explanation' field is empty."
             )
 
+        bounded_fields = (
+            ("statement", exercise.statement, MAX_STATEMENT_CHARS),
+            ("solution", exercise.solution, MAX_SOLUTION_CHARS),
+            ("explanation", exercise.explanation, MAX_EXPLANATION_CHARS),
+        )
+        for field_name, value, maximum in bounded_fields:
+            if len(value) > maximum:
+                raise ExerciseValidationError(
+                    f"The generated '{field_name}' field exceeds the "
+                    f"{maximum}-character Bac-size limit; shorten only this "
+                    "field while preserving its meaning."
+                )
+
+        self._validate_executable_contract(exercise.solution)
+
         total_test_cases = len(exercise.test_cases)
 
         if total_test_cases < 4 or total_test_cases > 6:
@@ -77,6 +117,14 @@ class ExerciseValidator:
         seen_test_cases: set[tuple[str, str]] = set()
 
         for test_case in exercise.test_cases:
+            if (
+                len(test_case.input) > MAX_TEST_VALUE_CHARS
+                or len(test_case.expected_output) > MAX_TEST_VALUE_CHARS
+            ):
+                raise ExerciseValidationError(
+                    "Each generated test-case input and expected_output must "
+                    f"contain at most {MAX_TEST_VALUE_CHARS} characters."
+                )
             normalized_test_case = (
                 test_case.input.strip(),
                 test_case.expected_output.strip(),
@@ -105,3 +153,23 @@ class ExerciseValidator:
             exercise.topic,
             exercise.difficulty,
         )
+
+    @staticmethod
+    def _validate_executable_contract(solution: str) -> None:
+        code = _CPP_COMMENT_PATTERN.sub("", solution)
+
+        if _MAIN_FUNCTION_PATTERN.search(code) is None:
+            raise ExerciseValidationError(
+                "The reference solution must be a complete C++17 program "
+                "containing int main() as its executable test harness."
+            )
+
+        if (
+            _FORBIDDEN_FILE_IO_PATTERN.search(code) is not None
+            or _NAMED_FILE_PATTERN.search(code) is not None
+        ):
+            raise ExerciseValidationError(
+                "The reference solution must read from standard input and "
+                "write to standard output only; named-file access and C++ "
+                "file I/O APIs are not supported by the execution harness."
+            )
