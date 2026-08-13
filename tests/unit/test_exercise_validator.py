@@ -9,8 +9,21 @@ from bac_generator.schemas.exercise import (
 )
 from bac_generator.services.exercise_validator import ExerciseValidator
 
+VALID_CPP_SOLUTION = """
+#include <iostream>
+int main() {
+    int value;
+    std::cin >> value;
+    std::cout << value;
+    return 0;
+}
+"""
+
 
 class FakeCodeValidator:
+    def __init__(self) -> None:
+        self.test_case_validation_calls = 0
+
     def validate_cpp(self, code: str) -> None:
         pass
 
@@ -19,7 +32,7 @@ class FakeCodeValidator:
         code: str,
         test_cases: list[ExerciseTestCase],
     ) -> None:
-        pass
+        self.test_case_validation_calls += 1
 
 
 def build_valid_test_cases() -> list[ExerciseTestCase]:
@@ -60,7 +73,7 @@ def test_validate_accepts_valid_exercise() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=build_valid_test_cases(),
     )
@@ -81,7 +94,7 @@ def test_validate_rejects_mismatched_topic() -> None:
         topic="matrici",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=build_valid_test_cases(),
     )
@@ -106,7 +119,7 @@ def test_validate_rejects_mismatched_difficulty() -> None:
         topic="vectori",
         difficulty=Difficulty.HARD,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=build_valid_test_cases(),
     )
@@ -131,7 +144,7 @@ def test_validate_rejects_empty_statement() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=build_valid_test_cases(),
     )
@@ -156,7 +169,7 @@ def test_validate_rejects_too_few_test_cases() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=[
             ExerciseTestCase(
@@ -197,7 +210,7 @@ def test_validate_rejects_too_many_test_cases() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=[
             ExerciseTestCase(
@@ -229,7 +242,7 @@ def test_validate_rejects_no_public_test_cases() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=[
             ExerciseTestCase(
@@ -275,7 +288,7 @@ def test_validate_rejects_more_than_two_public_test_cases() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=[
             ExerciseTestCase(
@@ -321,7 +334,7 @@ def test_validate_rejects_duplicate_test_cases() -> None:
         topic="vectori",
         difficulty=Difficulty.MEDIUM,
         statement="Enunț valid.",
-        solution="Soluție validă.",
+        solution=VALID_CPP_SOLUTION,
         explanation="Explicație validă.",
         test_cases=[
             ExerciseTestCase(
@@ -352,3 +365,99 @@ def test_validate_rejects_duplicate_test_cases() -> None:
         match="duplicate test cases",
     ):
         validator.validate(request, exercise)
+
+
+def _exercise_with_solution(
+    solution: str,
+    *,
+    topic: str = "files",
+) -> tuple[ExerciseRequest, ExerciseResponse]:
+    request = ExerciseRequest(topic=topic, difficulty=Difficulty.MEDIUM)
+    exercise = ExerciseResponse(
+        topic=topic,
+        difficulty=Difficulty.MEDIUM,
+        statement="Enunț Bac valid.",
+        solution=solution,
+        explanation="Explicație validă.",
+        test_cases=build_valid_test_cases(),
+    )
+    return request, exercise
+
+
+def test_validate_rejects_reference_solution_without_main() -> None:
+    code_validator = FakeCodeValidator()
+    validator = ExerciseValidator(code_validator)
+    request, exercise = _exercise_with_solution(
+        "int suma(int a, int b) { return a + b; }",
+        topic="subprograms",
+    )
+
+    with pytest.raises(
+        ExerciseValidationError,
+        match=r"complete C\+\+17 program.*main\(\)",
+    ):
+        validator.validate(request, exercise)
+
+    assert code_validator.test_case_validation_calls == 0
+
+
+@pytest.mark.parametrize(
+    "forbidden_solution",
+    [
+        '#include <fstream>\nint main(){ std::ifstream f("bac.txt"); }',
+        '#include <fstream>\nint main(){ std::ofstream f("out.txt"); }',
+        '#include <fstream>\nint main(){ std::fstream f("data.txt"); }',
+        '#include <cstdio>\nint main(){ freopen("bac.txt", "r", stdin); }',
+        'int main(){ stream.open("input.txt"); }',
+        'int main(){ const char* source = "bac.txt"; return source[0]; }',
+    ],
+)
+def test_validate_rejects_named_file_io(forbidden_solution: str) -> None:
+    code_validator = FakeCodeValidator()
+    validator = ExerciseValidator(code_validator)
+    request, exercise = _exercise_with_solution(forbidden_solution)
+
+    with pytest.raises(
+        ExerciseValidationError,
+        match="standard input.*standard output",
+    ):
+        validator.validate(request, exercise)
+
+    assert code_validator.test_case_validation_calls == 0
+
+
+def test_validate_accepts_subprogram_with_complete_main_harness() -> None:
+    code_validator = FakeCodeValidator()
+    validator = ExerciseValidator(code_validator)
+    request, exercise = _exercise_with_solution(
+        """
+        #include <iostream>
+        int suma(int a, int b) { return a + b; }
+        int main() {
+            int a, b;
+            std::cin >> a >> b;
+            std::cout << suma(a, b);
+            return 0;
+        }
+        """,
+        topic="subprograms",
+    )
+
+    validator.validate(request, exercise)
+
+    assert code_validator.test_case_validation_calls == 1
+
+
+def test_validate_rejects_oversized_bac_response_before_compilation() -> None:
+    code_validator = FakeCodeValidator()
+    validator = ExerciseValidator(code_validator)
+    request, exercise = _exercise_with_solution(VALID_CPP_SOLUTION)
+    exercise.explanation = "x" * 1801
+
+    with pytest.raises(
+        ExerciseValidationError,
+        match="explanation.*1800-character Bac-size limit",
+    ):
+        validator.validate(request, exercise)
+
+    assert code_validator.test_case_validation_calls == 0

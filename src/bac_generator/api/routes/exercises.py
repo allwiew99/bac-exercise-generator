@@ -3,10 +3,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bac_generator.ai.embeddings.vertex_embedding_client import (
+    VertexEmbeddingClient,
+)
 from bac_generator.ai.gemini_client import GeminiClient
 from bac_generator.ai.llm_client import LLMClient
 from bac_generator.ai.ollama_client import OllamaClient
 from bac_generator.ai.prompt_builder import PromptBuilder
+from bac_generator.ai.retrieval.context_builder import ContextBuilder
+from bac_generator.ai.retrieval.reranker import Reranker
 from bac_generator.api.dependencies.auth import (
     CurrentUser,
     get_current_user,
@@ -17,6 +22,9 @@ from bac_generator.db.models import Exercise
 from bac_generator.db.session import get_db_session
 from bac_generator.repositories.exercise_repository import (
     ExerciseRepository,
+)
+from bac_generator.repositories.pinecone_repository import (
+    PineconeRepository,
 )
 from bac_generator.repositories.submission_repository import (
     SubmissionRepository,
@@ -35,14 +43,19 @@ from bac_generator.schemas.submission import (
     SubmitSolutionRequest,
 )
 from bac_generator.services.code_validator import CodeValidator
+from bac_generator.services.exercise_novelty_validator import (
+    ExerciseNoveltyValidator,
+)
 from bac_generator.services.exercise_service import ExerciseService
 from bac_generator.services.exercise_validator import ExerciseValidator
 from bac_generator.services.local_code_runner import LocalCodeRunner
+from bac_generator.services.rag_context_provider import RagContextProvider
 from bac_generator.services.rate_limiter import (
     InMemoryRateLimiter,
     RateLimiterProtocol,
     RedisRateLimiter,
 )
+from bac_generator.services.retrieval_service import RetrievalService
 from bac_generator.services.sandbox_code_runner import (
     SandboxCodeRunner,
 )
@@ -57,7 +70,6 @@ router = APIRouter(
     prefix="/exercises",
     tags=["exercises"],
 )
-
 
 memory_rate_limiter = InMemoryRateLimiter()
 redis_rate_limiter: RedisRateLimiter | None = None
@@ -116,6 +128,48 @@ def get_prompt_builder() -> PromptBuilder:
     return PromptBuilder()
 
 
+def get_embedding_client() -> VertexEmbeddingClient:
+    return VertexEmbeddingClient()
+
+
+def get_vector_repository() -> PineconeRepository:
+    return PineconeRepository()
+
+
+def get_context_builder() -> ContextBuilder:
+    return ContextBuilder()
+
+
+def get_novelty_validator() -> ExerciseNoveltyValidator:
+    return ExerciseNoveltyValidator()
+
+
+def get_reranker() -> Reranker:
+    return Reranker(
+        project_id=settings.gemini_project,
+        model=settings.reranker_model,
+        top_n=settings.reranker_top_n,
+    )
+
+
+def get_retrieval_service() -> RetrievalService:
+    return RetrievalService(
+        embedding_client=get_embedding_client(),
+        vector_repository=get_vector_repository(),
+    )
+
+
+def get_rag_context_provider() -> RagContextProvider:
+    return RagContextProvider(
+        retrieval_service_factory=get_retrieval_service,
+        reranker_factory=get_reranker,
+        context_builder=get_context_builder(),
+        rag_enabled=settings.rag_enabled,
+        reranker_enabled=settings.reranker_enabled,
+        rag_fail_open=settings.rag_fail_open,
+    )
+
+
 def get_llm_client() -> LLMClient:
     if settings.llm_provider == "ollama":
         return OllamaClient(
@@ -128,6 +182,7 @@ def get_llm_client() -> LLMClient:
             project=settings.gemini_project,
             location=settings.gemini_location,
             model=settings.gemini_model,
+            max_output_tokens=settings.gemini_max_output_tokens,
         )
 
     raise ValueError(
@@ -273,12 +328,22 @@ def get_exercise_service(
         ExerciseRepository,
         Depends(get_exercise_repository),
     ],
+    rag_context_provider: Annotated[
+        RagContextProvider,
+        Depends(get_rag_context_provider),
+    ],
+    novelty_validator: Annotated[
+        ExerciseNoveltyValidator,
+        Depends(get_novelty_validator),
+    ],
 ) -> ExerciseService:
     return ExerciseService(
         prompt_builder=prompt_builder,
         llm_client=llm_client,
         validator=validator,
         repository=repository,
+        rag_context_provider=rag_context_provider,
+        novelty_validator=novelty_validator,
     )
 
 

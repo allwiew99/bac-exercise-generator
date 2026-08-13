@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
     )
 
-    llm_max_attempts: int = 3
+    llm_max_attempts: int = 6
     llm_provider: str = "ollama"
 
     code_runner_provider: str = "local"
@@ -34,6 +34,21 @@ class Settings(BaseSettings):
     gemini_project: str = ""
     gemini_location: str = "us-central1"
     gemini_model: str = "gemini-2.5-flash"
+    gemini_max_output_tokens: int = 8192
+
+    embedding_model: str = "gemini-embedding-001"
+    embedding_dimensions: int = 768
+
+    pinecone_api_key: str = ""
+    pinecone_index_name: str = ""
+    pinecone_namespace: str = "bac-exercises"
+
+    rag_enabled: bool = True
+    rag_fail_open: bool = True
+
+    reranker_enabled: bool = False
+    reranker_model: str = "semantic-ranker-default@latest"
+    reranker_top_n: int = 5
 
     @property
     def cors_origin_list(self) -> list[str]:

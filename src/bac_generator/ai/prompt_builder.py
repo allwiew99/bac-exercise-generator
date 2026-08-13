@@ -1,11 +1,32 @@
-from bac_generator.schemas.exercise import ExerciseRequest
+from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
 
 
 class PromptBuilder:
     def build_exercise_prompt(
         self,
         request: ExerciseRequest,
+        context: str = "",
     ) -> str:
+        reference_context = ""
+
+        if context:
+            reference_context = f"""
+Reference context from validated Romanian Baccalaureate material:
+
+{context}
+
+Use the reference material only to understand:
+- the expected Baccalaureate style,
+- the requested topic,
+- the approximate difficulty,
+- common exercise structures.
+
+Do not copy or closely reproduce any reference exercise.
+Generate a genuinely new exercise.
+Do not copy solutions, wording, constants, examples, or test cases
+from the reference material.
+"""
+
         return f"""
 Task:
 Generate a Romanian Baccalaureate computer science exercise.
@@ -16,12 +37,38 @@ Topic:
 Difficulty:
 {request.difficulty}
 
+{reference_context}
+
 Requirements:
 
 - Generate a clear and correct problem statement.
 - The exercise must genuinely match the requested difficulty.
-- Include the complete C++ solution.
+- The "solution" field must be a complete C++17 program with exactly one
+  int main() entry point, even when the statement asks for a subprogram.
+- The complete program must read every input value from standard input (stdin)
+  and write only the requested answer to standard output (stdout).
+- Never use ifstream, ofstream, fstream, freopen, .open(...), hard-coded input
+  or output filenames, or any other named files.
+- For topic "files", keep the Bac file-processing concept, but state clearly
+  that the conceptual file contents are supplied through standard input.
+- For topic "subprograms", preserve a Bac-style student-facing statement that
+  asks for the subprogram, while the reference solution also includes a small
+  main() harness that reads its parameters, invokes the requested subprogram,
+  and prints its observable result or modified values.
 - Include a clear explanation of the solution.
+- Keep the statement self-contained and concise.
+- Limit the explanation to the algorithm, correctness, and complexity.
+- Keep the C++17 solution complete but compact; do not repeat the statement.
+- Keep the entire JSON response comfortably within 8,192 output tokens.
+- Apply these strict per-field bounds:
+  statement: at most 1,800 characters;
+  solution: at most 5,000 characters;
+  explanation: at most 1,800 characters;
+  each test-case input or expected_output: at most 500 characters.
+- Use compact, human-auditable test data. Never emit large arrays, matrices,
+  graphs, files, or repeated values merely to demonstrate an upper bound.
+- Do not include manual execution traces, long enumerations, or step-by-step
+  calculations in the explanation; summarize correctness in a short paragraph.
 - Generate between 4 and 6 test cases.
 - Exactly 1 or 2 test cases must be public sample test cases.
 - Public sample test cases must have:
@@ -71,8 +118,30 @@ Output:
         self,
         request: ExerciseRequest,
         previous_error: str,
+        context: str = "",
+        previous_response: ExerciseResponse | None = None,
     ) -> str:
-        base_prompt = self.build_exercise_prompt(request)
+        base_prompt = self.build_exercise_prompt(
+            request,
+            context=context,
+        )
+
+        candidate_section = ""
+        if previous_response is not None:
+            candidate_section = f"""
+Repair this exact candidate instead of inventing a different exercise:
+{previous_response.model_dump_json()}
+"""
+
+        targeted_correction = ""
+        if "Program output does not match expected output" in previous_error:
+            targeted_correction = """
+The validator executed the program and supplied authoritative Expected and
+Actual values plus the exact Input. For this repair, change only the
+expected_output belonging to that matching Input to
+use the reported Actual value. Do not alter the statement, solution, explanation,
+inputs, visibility flags, or any other expected_output.
+"""
 
         return f"""
 {base_prompt}
@@ -82,9 +151,15 @@ The previous attempt was invalid.
 Reason:
 {previous_error}
 
+{candidate_section}
+
+{targeted_correction}
+
 Correction requirements:
 
 - Fix the reported issue.
+- When an exact candidate is supplied, preserve its valid fields and make the
+  smallest correction needed. Follow any targeted correction above exactly.
 - Keep the requested topic unchanged.
 - Keep the requested difficulty unchanged.
 - Return only one valid JSON object.

@@ -26,6 +26,13 @@ htmlcov/
 # macOS
 .DS_Store
 
+# Local validation artifacts and corpus safety copies
+tmp/
+data/rag/bac_corpus.before-full-rag.json
+data/rag/bac_corpus.pre-first-full-ingestion-*.json
+data/rag/bac_corpus.preview.json
+data/rag/evaluation/generation_e2e_report.json
+
 # Build artifacts
 build/
 dist/

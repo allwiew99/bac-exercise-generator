@@ -16,6 +16,8 @@ def test_settings_defaults(
     monkeypatch.delenv("GEMINI_PROJECT", raising=False)
     monkeypatch.delenv("GEMINI_LOCATION", raising=False)
     monkeypatch.delenv("GEMINI_MODEL", raising=False)
+    monkeypatch.delenv("RERANKER_ENABLED", raising=False)
+    monkeypatch.delenv("GEMINI_MAX_OUTPUT_TOKENS", raising=False)
 
     settings = Settings()
 
@@ -24,8 +26,10 @@ def test_settings_defaults(
     assert settings.database_url == (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bac_generator"
     )
-    assert settings.llm_max_attempts == 3
+    assert settings.llm_max_attempts == 6
     assert settings.llm_provider == "ollama"
     assert settings.gemini_project == ""
     assert settings.gemini_location == "us-central1"
     assert settings.gemini_model == "gemini-2.5-flash"
+    assert settings.reranker_enabled is False
+    assert settings.gemini_max_output_tokens == 8192

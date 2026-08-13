@@ -11,8 +11,12 @@ from bac_generator.db.models.exercise import Exercise
 from bac_generator.repositories.exercise_repository_protocol import (
     ExerciseRepositoryProtocol,
 )
-from bac_generator.schemas.exercise import ExerciseRequest
+from bac_generator.schemas.exercise import ExerciseRequest, ExerciseResponse
+from bac_generator.services.exercise_novelty_validator import (
+    ExerciseNoveltyValidatorProtocol,
+)
 from bac_generator.services.exercise_validator import ExerciseValidator
+from bac_generator.services.rag_context_provider import RagContextProviderProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +28,15 @@ class ExerciseService:
         llm_client: LLMClient,
         validator: ExerciseValidator,
         repository: ExerciseRepositoryProtocol,
+        rag_context_provider: RagContextProviderProtocol,
+        novelty_validator: ExerciseNoveltyValidatorProtocol,
     ) -> None:
         self.prompt_builder = prompt_builder
         self.llm_client = llm_client
         self.validator = validator
         self.repository = repository
+        self.rag_context_provider = rag_context_provider
+        self.novelty_validator = novelty_validator
 
     async def generate(
         self,
@@ -41,13 +49,33 @@ class ExerciseService:
             request.difficulty,
         )
 
-        prompt = self.prompt_builder.build_exercise_prompt(request)
+        query = (
+            "Romanian Baccalaureate informatics exercise "
+            f"about {request.topic} with "
+            f"{request.difficulty} difficulty"
+        )
+        rag_context = await self.rag_context_provider.get_context(
+            query=query,
+            topic=request.topic,
+            difficulty=request.difficulty,
+        )
+
+        prompt = self.prompt_builder.build_exercise_prompt(
+            request,
+            context=rag_context.text,
+        )
+        previous_response: ExerciseResponse | None = None
 
         for attempt in range(settings.llm_max_attempts):
             attempt_number = attempt + 1
 
             try:
                 exercise = self.llm_client.generate_exercise(prompt)
+                previous_response = exercise
+                self.novelty_validator.validate(
+                    exercise,
+                    rag_context.chunks,
+                )
                 self.validator.validate(request, exercise)
 
             except (ExerciseValidationError, LLMResponseError) as exc:
@@ -68,6 +96,8 @@ class ExerciseService:
                 prompt = self.prompt_builder.build_repair_prompt(
                     request,
                     str(exc),
+                    context=rag_context.text,
+                    previous_response=previous_response,
                 )
 
                 continue

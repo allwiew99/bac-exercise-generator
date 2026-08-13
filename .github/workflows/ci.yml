@@ -142,6 +142,6 @@ jobs:
               --cpu=1 \
               --memory=1Gi \
               --concurrency=4 \
-              --set-env-vars='^@^LLM_PROVIDER=gemini@GEMINI_PROJECT=bac-exercise-generator-prod@GEMINI_LOCATION=europe-west1@GEMINI_MODEL=gemini-2.5-flash@FIREBASE_PROJECT_ID=bac-exercise-generator-prod@CODE_RUNNER_PROVIDER=sandbox@RATE_LIMITER_PROVIDER=redis@REDIS_HOST=10.76.187.139@REDIS_PORT=6379@CORS_ORIGINS=http://localhost:3000,https://bac-exercise-generator-frontend-758439681309.europe-west1.run.app' \
-              --set-secrets="DATABASE_URL=database-url:latest" \
+              --set-env-vars='^@^LLM_PROVIDER=gemini@LLM_MAX_ATTEMPTS=6@GEMINI_PROJECT=bac-exercise-generator-prod@GEMINI_LOCATION=europe-west1@GEMINI_MODEL=gemini-2.5-flash@GEMINI_MAX_OUTPUT_TOKENS=8192@EMBEDDING_MODEL=gemini-embedding-001@EMBEDDING_DIMENSIONS=768@PINECONE_INDEX_NAME=bac-exercises-rag@PINECONE_NAMESPACE=bac-exercises@RAG_ENABLED=true@RAG_FAIL_OPEN=true@RERANKER_ENABLED=false@FIREBASE_PROJECT_ID=bac-exercise-generator-prod@CODE_RUNNER_PROVIDER=sandbox@RATE_LIMITER_PROVIDER=redis@REDIS_HOST=10.76.187.139@REDIS_PORT=6379@CORS_ORIGINS=http://localhost:3000,https://bac-exercise-generator-frontend-758439681309.europe-west1.run.app' \
+              --set-secrets="DATABASE_URL=database-url:latest,PINECONE_API_KEY=pinecone-api-key:latest" \
               --quiet

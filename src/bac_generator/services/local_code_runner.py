@@ -188,6 +188,7 @@ class LocalCodeRunner:
                     raise CodeCompilationError(
                         "Program output does not match "
                         "expected output. "
+                        f"Input: {test_case.input.strip()!r}. "
                         f"Expected: {expected_output!r}. "
                         f"Actual: {actual_output!r}."
                     )
