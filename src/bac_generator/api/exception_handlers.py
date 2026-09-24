@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -9,6 +11,9 @@ from bac_generator.core.exceptions import (
     RateLimitExceededError,
     SolutionLockedError,
 )
+from bac_generator.core.logging_config import log_event
+
+logger = logging.getLogger(__name__)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -17,6 +22,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         _request: Request,
         exc: ExerciseValidationError,
     ) -> JSONResponse:
+        log_event(
+            logger,
+            "validation_failed",
+            level=logging.WARNING,
+            exception_type=type(exc).__name__,
+            safe_error_message="Generated exercise validation failed.",
+        )
         return JSONResponse(
             status_code=422,
             content={
@@ -30,6 +42,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         _request: Request,
         exc: CodeCompilationError,
     ) -> JSONResponse:
+        log_event(
+            logger,
+            "sandbox_failed",
+            level=logging.WARNING,
+            exception_type=type(exc).__name__,
+            safe_error_message="Generated code validation failed.",
+        )
         return JSONResponse(
             status_code=422,
             content={
@@ -43,6 +62,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         _request: Request,
         exc: LLMResponseError,
     ) -> JSONResponse:
+        log_event(
+            logger,
+            "generation_failed",
+            level=logging.ERROR,
+            exception_type=type(exc).__name__,
+            safe_error_message="Model response could not be processed.",
+        )
         return JSONResponse(
             status_code=502,
             content={
@@ -56,6 +82,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         _request: Request,
         exc: ExerciseGenerationError,
     ) -> JSONResponse:
+        log_event(
+            logger,
+            "generation_failed",
+            level=logging.ERROR,
+            exception_type=type(exc).__name__,
+            safe_error_message="Exercise generation failed.",
+        )
         return JSONResponse(
             status_code=500,
             content={
@@ -82,6 +115,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         _request: Request,
         exc: RateLimitExceededError,
     ) -> JSONResponse:
+        log_event(
+            logger,
+            "rate_limited",
+            level=logging.WARNING,
+            exception_type=type(exc).__name__,
+            safe_error_message="Request rate limit exceeded.",
+        )
         return JSONResponse(
             status_code=429,
             content={

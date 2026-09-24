@@ -30,3 +30,25 @@ def test_request_id_is_generated_when_missing() -> None:
 
     assert request_id
     UUID(request_id)
+
+
+def test_invalid_request_id_is_replaced() -> None:
+    response = client.get(
+        "/health",
+        headers={"X-Request-ID": "attacker\nforged-log-line"},
+    )
+
+    assert response.status_code == 200
+    generated_request_id = response.headers["X-Request-ID"]
+    assert generated_request_id != "attacker\nforged-log-line"
+    UUID(generated_request_id)
+
+
+def test_oversized_request_id_is_replaced() -> None:
+    response = client.get(
+        "/health",
+        headers={"X-Request-ID": "a" * 129},
+    )
+
+    assert response.status_code == 200
+    UUID(response.headers["X-Request-ID"])

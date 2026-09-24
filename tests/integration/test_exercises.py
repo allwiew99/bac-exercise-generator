@@ -754,7 +754,9 @@ def test_get_official_solution_returns_404_for_missing_exercise() -> None:
         app.dependency_overrides.clear()
 
 
-def test_generate_exercise_returns_429_when_rate_limited() -> None:
+def test_generate_exercise_returns_429_when_rate_limited(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     app.dependency_overrides[get_rate_limiter] = FakeBlockedRateLimiter
 
     try:
@@ -773,6 +775,10 @@ def test_generate_exercise_returns_429_when_rate_limited() -> None:
         assert (
             "Too many exercise generation requests"
             in body["detail"]
+        )
+        assert any(
+            getattr(record, "event", None) == "rate_limited"
+            for record in caplog.records
         )
 
     finally:
