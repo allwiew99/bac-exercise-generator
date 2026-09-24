@@ -11,6 +11,9 @@ class VertexEmbeddingClient(EmbeddingClient):
             vertexai=True,
             project=settings.gemini_project,
             location=settings.gemini_location,
+            http_options=types.HttpOptions(
+                timeout=settings.embedding_timeout_seconds * 1000,
+            ),
         )
 
     def embed_text(self, text: str) -> list[float]:

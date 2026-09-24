@@ -32,6 +32,7 @@ def test_gemini_client_forwards_bounded_output_tokens(
         location="us-central1",
         model="gemini-2.5-flash",
         max_output_tokens=8192,
+        timeout_seconds=60,
     )
 
     result = client.generate_exercise("prompt")
@@ -45,6 +46,8 @@ def test_gemini_client_forwards_bounded_output_tokens(
     assert "1,800" in response_schema["properties"]["statement"]["description"]
     assert request.kwargs["config"].response_schema is None
     assert result.difficulty is Difficulty.MEDIUM
+    http_options = client_factory.call_args.kwargs["http_options"]
+    assert http_options.timeout == 60_000
 
 
 def test_gemini_client_rejects_non_positive_output_limit() -> None:
@@ -57,6 +60,7 @@ def test_gemini_client_rejects_non_positive_output_limit() -> None:
             location="us-central1",
             model="gemini-2.5-flash",
             max_output_tokens=0,
+            timeout_seconds=60,
         )
 
 
@@ -69,6 +73,28 @@ def test_generation_schema_exposes_bac_sized_field_bounds() -> None:
     test_case_schema = schema["$defs"]["ExerciseTestCase"]["properties"]
     assert "500" in test_case_schema["input"]["description"]
     assert "500" in test_case_schema["expected_output"]["description"]
+
+
+@patch("bac_generator.ai.gemini_client.genai.Client")
+def test_invalid_structured_output_does_not_leak_provider_content(
+    client_factory: Mock,
+) -> None:
+    client_factory.return_value.models.generate_content.return_value = Mock(
+        text='{"statement":"private-provider-content"}'
+    )
+    client = GeminiClient(
+        project="project-id",
+        location="us-central1",
+        model="gemini-2.5-flash",
+        max_output_tokens=8192,
+        timeout_seconds=60,
+    )
+
+    with pytest.raises(LLMResponseError) as exc_info:
+        client.generate_exercise("prompt")
+
+    assert str(exc_info.value) == "Gemini returned invalid structured output."
+    assert "private-provider-content" not in str(exc_info.value)
 
 
 @patch("bac_generator.ai.gemini_client.genai.Client")
@@ -86,6 +112,7 @@ def test_gemini_api_failure_enters_existing_generation_retry_contract(
         location="us-central1",
         model="gemini-2.5-flash",
         max_output_tokens=8192,
+        timeout_seconds=60,
     )
 
     with pytest.raises(LLMResponseError, match="Gemini request failed.*429"):

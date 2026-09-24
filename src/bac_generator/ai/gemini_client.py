@@ -12,6 +12,7 @@ class GeminiClient:
         location: str,
         model: str,
         max_output_tokens: int,
+        timeout_seconds: int = 60,
     ) -> None:
         if max_output_tokens <= 0:
             raise ValueError(
@@ -25,6 +26,9 @@ class GeminiClient:
             vertexai=True,
             project=project,
             location=location,
+            http_options=types.HttpOptions(
+                timeout=timeout_seconds * 1000,
+            ),
         )
 
     def generate_exercise(
@@ -67,5 +71,5 @@ class GeminiClient:
             return ExerciseResponse.model_validate_json(content)
         except ValueError as exc:
             raise LLMResponseError(
-                f"Gemini returned an invalid response: {exc}"
+                "Gemini returned invalid structured output."
             ) from exc

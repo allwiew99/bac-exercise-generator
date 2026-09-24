@@ -6,6 +6,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth as firebase_auth
 
+from bac_generator.core.logging_config import log_event
+
 logger = logging.getLogger(__name__)
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -34,9 +36,12 @@ async def get_current_user(
             credentials.credentials
         )
     except Exception as exc:
-        logger.exception(
-            "Firebase ID token verification failed: %s",
-            exc,
+        log_event(
+            logger,
+            "authentication_failed",
+            level=logging.WARNING,
+            exception_type=type(exc).__name__,
+            safe_error_message="Firebase token verification failed.",
         )
 
         raise HTTPException(

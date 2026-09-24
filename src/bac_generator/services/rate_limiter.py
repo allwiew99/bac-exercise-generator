@@ -5,6 +5,8 @@ from typing import Protocol
 
 from redis.asyncio import Redis
 
+from bac_generator.core.config import settings
+
 
 class RateLimiterProtocol(Protocol):
     async def check(
@@ -60,8 +62,8 @@ class RedisRateLimiter:
             host=host,
             port=port,
             decode_responses=True,
-            socket_connect_timeout=2,
-            socket_timeout=2,
+            socket_connect_timeout=settings.redis_timeout_seconds,
+            socket_timeout=settings.redis_timeout_seconds,
         )
 
         self._prefix = prefix
