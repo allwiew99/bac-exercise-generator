@@ -8,6 +8,7 @@ from bac_generator.core.exceptions import (
     ExerciseGenerationError,
     ExerciseValidationError,
     LLMResponseError,
+    RateLimiterUnavailableError,
     RateLimitExceededError,
     SolutionLockedError,
 )
@@ -127,5 +128,25 @@ def register_exception_handlers(app: FastAPI) -> None:
             content={
                 "error": "rate_limit_exceeded",
                 "detail": str(exc),
+            },
+        )
+
+    @app.exception_handler(RateLimiterUnavailableError)
+    async def rate_limiter_unavailable_exception_handler(
+        _request: Request,
+        exc: RateLimiterUnavailableError,
+    ) -> JSONResponse:
+        log_event(
+            logger,
+            "rate_limiter_failed_closed",
+            level=logging.ERROR,
+            exception_type=type(exc).__name__,
+            safe_error_message="Rate limiting is temporarily unavailable.",
+        )
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": "rate_limiter_unavailable",
+                "detail": "Rate limiting is temporarily unavailable.",
             },
         )

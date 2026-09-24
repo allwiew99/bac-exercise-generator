@@ -23,3 +23,7 @@ class SolutionLockedError(Exception):
 
 class RateLimitExceededError(Exception):
     """Raised when a user exceeds an allowed request rate."""
+
+
+class RateLimiterUnavailableError(Exception):
+    """Raised when the distributed limiter cannot make a safe decision."""

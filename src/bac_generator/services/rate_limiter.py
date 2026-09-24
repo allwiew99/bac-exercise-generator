@@ -4,8 +4,10 @@ from collections import defaultdict, deque
 from typing import Protocol
 
 from redis.asyncio import Redis
+from redis.exceptions import RedisError
 
 from bac_generator.core.config import settings
+from bac_generator.core.exceptions import RateLimiterUnavailableError
 
 
 class RateLimiterProtocol(Protocol):
@@ -76,18 +78,23 @@ class RedisRateLimiter:
     ) -> bool:
         redis_key = f"{self._prefix}:{key}"
 
-        async with self._redis.pipeline(
-            transaction=True
-        ) as pipeline:
-            pipeline.incr(redis_key)
+        try:
+            async with self._redis.pipeline(
+                transaction=True
+            ) as pipeline:
+                pipeline.incr(redis_key)
 
-            pipeline.expire(
-                redis_key,
-                window_seconds,
-                nx=True,
-            )
+                pipeline.expire(
+                    redis_key,
+                    window_seconds,
+                    nx=True,
+                )
 
-            results = await pipeline.execute()
+                results = await pipeline.execute()
+        except RedisError as exc:
+            raise RateLimiterUnavailableError(
+                "Distributed rate limiter unavailable."
+            ) from exc
 
         request_count = int(results[0])
 

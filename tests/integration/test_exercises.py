@@ -21,6 +21,7 @@ from bac_generator.core.config import settings
 from bac_generator.core.exceptions import (
     ExerciseGenerationError,
     LLMResponseError,
+    RateLimiterUnavailableError,
 )
 from bac_generator.db.models import Exercise, Submission
 from bac_generator.main import app
@@ -76,6 +77,16 @@ class FakeBlockedRateLimiter:
         window_seconds: int,
     ) -> bool:
         return False
+
+
+class FakeUnavailableRateLimiter:
+    async def check(
+        self,
+        key: str,
+        limit: int,
+        window_seconds: int,
+    ) -> bool:
+        raise RateLimiterUnavailableError("private redis endpoint")
     
 
 class FakeExerciseRepository:
@@ -807,3 +818,22 @@ def test_submit_solution_returns_429_when_rate_limited() -> None:
 
     finally:
         app.dependency_overrides.clear()
+
+
+def test_generate_fails_closed_with_safe_503_when_redis_is_unavailable() -> None:
+    app.dependency_overrides[get_rate_limiter] = FakeUnavailableRateLimiter
+
+    try:
+        response = client.post(
+            "/exercises/generate",
+            json={"topic": "vectori", "difficulty": "medium"},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "error": "rate_limiter_unavailable",
+        "detail": "Rate limiting is temporarily unavailable.",
+    }
+    assert "private redis endpoint" not in response.text
