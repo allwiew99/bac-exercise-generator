@@ -21,9 +21,10 @@ async def test_get_current_user_returns_401_without_credentials() -> None:
 @pytest.mark.asyncio
 async def test_get_current_user_returns_401_for_invalid_token(
     monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     def fake_verify_id_token(token: str) -> dict[str, Any]:
-        raise ValueError("Invalid token")
+        raise ValueError("provider echoed secret-token")
 
     monkeypatch.setattr(
         "bac_generator.api.dependencies.auth.firebase_auth.verify_id_token",
@@ -40,6 +41,7 @@ async def test_get_current_user_returns_401_for_invalid_token(
 
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "Invalid authentication token."
+    assert "secret-token" not in " ".join(caplog.messages)
 
 
 @pytest.mark.asyncio

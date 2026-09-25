@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+.venv
+.mypy_cache
+.pytest_cache
+.ruff_cache
+**/__pycache__
+frontend/node_modules
+frontend/.next
+tmp
+data/rag/*.before-*.json
+data/rag/*.pre-*.json

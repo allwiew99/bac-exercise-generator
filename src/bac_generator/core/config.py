@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,13 +36,20 @@ class Settings(BaseSettings):
     gemini_location: str = "us-central1"
     gemini_model: str = "gemini-2.5-flash"
     gemini_max_output_tokens: int = 8192
+    gemini_timeout_seconds: int = Field(default=60, gt=0)
 
     embedding_model: str = "gemini-embedding-001"
     embedding_dimensions: int = 768
+    embedding_timeout_seconds: int = Field(default=15, gt=0)
 
     pinecone_api_key: str = ""
     pinecone_index_name: str = ""
     pinecone_namespace: str = "bac-exercises"
+    pinecone_timeout_seconds: int = Field(default=10, gt=0)
+
+    redis_timeout_seconds: int = Field(default=2, gt=0)
+    sandbox_timeout_seconds: int = Field(default=20, gt=0)
+    readiness_timeout_seconds: float = Field(default=3.0, gt=0)
 
     rag_enabled: bool = True
     rag_fail_open: bool = True

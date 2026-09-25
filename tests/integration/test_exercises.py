@@ -21,6 +21,7 @@ from bac_generator.core.config import settings
 from bac_generator.core.exceptions import (
     ExerciseGenerationError,
     LLMResponseError,
+    RateLimiterUnavailableError,
 )
 from bac_generator.db.models import Exercise, Submission
 from bac_generator.main import app
@@ -76,6 +77,16 @@ class FakeBlockedRateLimiter:
         window_seconds: int,
     ) -> bool:
         return False
+
+
+class FakeUnavailableRateLimiter:
+    async def check(
+        self,
+        key: str,
+        limit: int,
+        window_seconds: int,
+    ) -> bool:
+        raise RateLimiterUnavailableError("private redis endpoint")
     
 
 class FakeExerciseRepository:
@@ -367,7 +378,7 @@ def test_generate_exercise_returns_exercise_generation_error() -> None:
 
         assert response.status_code == 500
         assert body["error"] == "exercise_generation_error"
-        assert "Failed to generate exercise." in body["detail"]
+        assert body["detail"] == "Exercise generation failed."
 
     finally:
         app.dependency_overrides.clear()
@@ -391,7 +402,9 @@ def test_generate_exercise_returns_llm_response_error() -> None:
 
         assert response.status_code == 502
         assert body["error"] == "llm_response_error"
-        assert "Invalid response from LLM." in body["detail"]
+        assert body["detail"] == (
+            "The generation provider returned an unusable response."
+        )
 
     finally:
         app.dependency_overrides.clear()
@@ -416,7 +429,7 @@ def test_generate_exercise_returns_validation_error() -> None:
 
         assert response.status_code == 422
         assert body["error"] == "exercise_validation_error"
-        assert "does not match requested topic" in body["detail"]
+        assert body["detail"] == "Generated exercise failed validation."
 
     finally:
         app.dependency_overrides.clear()
@@ -700,9 +713,8 @@ def test_get_official_solution_returns_403_without_submission() -> None:
 
         assert response.status_code == 403
         assert body["error"] == "solution_locked"
-        assert (
-            "Official solution is available only after submitting a solution."
-            in body["detail"]
+        assert body["detail"] == (
+            "Submit a solution before viewing the official solution."
         )
 
     finally:
@@ -754,7 +766,9 @@ def test_get_official_solution_returns_404_for_missing_exercise() -> None:
         app.dependency_overrides.clear()
 
 
-def test_generate_exercise_returns_429_when_rate_limited() -> None:
+def test_generate_exercise_returns_429_when_rate_limited(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     app.dependency_overrides[get_rate_limiter] = FakeBlockedRateLimiter
 
     try:
@@ -770,9 +784,10 @@ def test_generate_exercise_returns_429_when_rate_limited() -> None:
 
         assert response.status_code == 429
         assert body["error"] == "rate_limit_exceeded"
-        assert (
-            "Too many exercise generation requests"
-            in body["detail"]
+        assert body["detail"] == "Too many requests. Please try again shortly."
+        assert any(
+            getattr(record, "event", None) == "rate_limited"
+            for record in caplog.records
         )
 
     finally:
@@ -797,7 +812,26 @@ def test_submit_solution_returns_429_when_rate_limited() -> None:
 
         assert response.status_code == 429
         assert body["error"] == "rate_limit_exceeded"
-        assert "Too many submission requests" in body["detail"]
+        assert body["detail"] == "Too many requests. Please try again shortly."
 
     finally:
         app.dependency_overrides.clear()
+
+
+def test_generate_fails_closed_with_safe_503_when_redis_is_unavailable() -> None:
+    app.dependency_overrides[get_rate_limiter] = FakeUnavailableRateLimiter
+
+    try:
+        response = client.post(
+            "/exercises/generate",
+            json={"topic": "vectori", "difficulty": "medium"},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "error": "rate_limiter_unavailable",
+        "detail": "Rate limiting is temporarily unavailable.",
+    }
+    assert "private redis endpoint" not in response.text

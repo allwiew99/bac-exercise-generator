@@ -28,8 +28,13 @@ class ExerciseRepository:
         )
 
         self.session.add(exercise)
-        await self.session.commit()
-        await self.session.refresh(exercise)
+        try:
+            await self.session.flush()
+            await self.session.refresh(exercise)
+            await self.session.commit()
+        except Exception:
+            await self.session.rollback()
+            raise
 
         return exercise
 

@@ -33,3 +33,8 @@ def test_settings_defaults(
     assert settings.gemini_model == "gemini-2.5-flash"
     assert settings.reranker_enabled is False
     assert settings.gemini_max_output_tokens == 8192
+    assert settings.gemini_timeout_seconds == 60
+    assert settings.embedding_timeout_seconds == 15
+    assert settings.pinecone_timeout_seconds == 10
+    assert settings.redis_timeout_seconds == 2
+    assert settings.sandbox_timeout_seconds == 20

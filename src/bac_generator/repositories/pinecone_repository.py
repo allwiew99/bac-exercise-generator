@@ -8,6 +8,7 @@ class PineconeRepository:
     def __init__(self) -> None:
         self._client = Pinecone(
             api_key=settings.pinecone_api_key,
+            timeout=settings.pinecone_timeout_seconds,
         )
 
         self._index = self._client.Index(

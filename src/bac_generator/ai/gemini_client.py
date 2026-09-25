@@ -1,5 +1,6 @@
 from google import genai
 from google.genai import errors, types
+from httpx import TransportError
 
 from bac_generator.core.exceptions import LLMResponseError
 from bac_generator.schemas.exercise import ExerciseResponse
@@ -12,6 +13,7 @@ class GeminiClient:
         location: str,
         model: str,
         max_output_tokens: int,
+        timeout_seconds: int = 60,
     ) -> None:
         if max_output_tokens <= 0:
             raise ValueError(
@@ -25,6 +27,9 @@ class GeminiClient:
             vertexai=True,
             project=project,
             location=location,
+            http_options=types.HttpOptions(
+                timeout=timeout_seconds * 1000,
+            ),
         )
 
     def generate_exercise(
@@ -55,6 +60,10 @@ class GeminiClient:
             raise LLMResponseError(
                 f"Gemini request failed with API status {exc.code}."
             ) from exc
+        except TransportError as exc:
+            raise LLMResponseError(
+                "Gemini request failed because the provider was unavailable."
+            ) from exc
 
         content = response.text
 
@@ -67,5 +76,5 @@ class GeminiClient:
             return ExerciseResponse.model_validate_json(content)
         except ValueError as exc:
             raise LLMResponseError(
-                f"Gemini returned an invalid response: {exc}"
+                "Gemini returned invalid structured output."
             ) from exc

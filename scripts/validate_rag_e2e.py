@@ -2,6 +2,7 @@ import asyncio
 from pathlib import Path
 
 from bac_generator.core.logging_config import configure_logging
+from bac_generator.evaluation.generation_quality import load_generation_cases
 from bac_generator.evaluation.rag.generation_e2e import (
     GenerationE2EReport,
     cleanup_validation_rows,
@@ -13,6 +14,9 @@ from bac_generator.evaluation.rag.generation_e2e import (
 DEFAULT_OUTPUT_PATH = Path(
     "data/rag/evaluation/generation_e2e_report.json"
 )
+DEFAULT_CASES_PATH = Path(
+    "data/rag/evaluation/generation_quality_cases.json"
+)
 
 
 async def main() -> int:
@@ -21,6 +25,7 @@ async def main() -> int:
     report: GenerationE2EReport | None = None
     try:
         report = await run_e2e_validation(
+            cases=load_generation_cases(DEFAULT_CASES_PATH),
             validation_user_id=validation_user_id
         )
         _write_report(report)

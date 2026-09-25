@@ -183,6 +183,7 @@ def get_llm_client() -> LLMClient:
             location=settings.gemini_location,
             model=settings.gemini_model,
             max_output_tokens=settings.gemini_max_output_tokens,
+            timeout_seconds=settings.gemini_timeout_seconds,
         )
 
     raise ValueError(

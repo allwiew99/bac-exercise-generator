@@ -92,6 +92,7 @@ def test_sandbox_runner_uses_expected_secure_command(
     )
 
     captured_command: list[str] = []
+    captured_timeout: list[int] = []
 
     def fake_subprocess_run(
         command: list[str],
@@ -102,6 +103,7 @@ def test_sandbox_runner_uses_expected_secure_command(
         timeout: int,
     ) -> subprocess.CompletedProcess[str]:
         captured_command.extend(command)
+        captured_timeout.append(timeout)
 
         return subprocess.CompletedProcess(
             args=command,
@@ -120,6 +122,8 @@ def test_sandbox_runner_uses_expected_secure_command(
         "#include <iostream>\n"
         "int main() { return 0; }"
     )
+
+    assert captured_timeout == [settings.sandbox_timeout_seconds]
 
     assert captured_command[0] == SANDBOX_BINARY
     assert captured_command[1] == "do"

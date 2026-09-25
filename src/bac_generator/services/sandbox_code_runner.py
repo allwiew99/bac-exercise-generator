@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from bac_generator.core.config import settings
 from bac_generator.core.exceptions import CodeCompilationError
 from bac_generator.schemas.exercise import ExerciseTestCase
 
@@ -93,7 +94,7 @@ class SandboxCodeRunner:
                     capture_output=True,
                     text=True,
                     check=False,
-                    timeout=20,
+                    timeout=settings.sandbox_timeout_seconds,
                 )
             except subprocess.TimeoutExpired as exc:
                 raise CodeCompilationError(
