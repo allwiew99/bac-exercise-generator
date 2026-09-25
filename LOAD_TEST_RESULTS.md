@@ -46,3 +46,22 @@ PYTHONPATH=src python scripts/load_test.py --mode live --scenario generation \
 ```
 
 Authenticated live generation load remains unmeasured because no disposable Firebase test token was available. The live mode caps each concurrency level at 20 requests to prevent accidental paid-provider load.
+
+## Post-deployment readiness probe
+
+Measured 2026-09-25 against revision `bac-exercise-generator-00020-5cm` and
+the live `/ready` endpoint after the production migration and rollout. Each
+level made 20 requests with a 10-second client timeout.
+
+| Concurrency | Requests | RPS | p50 ms | p95 ms | p99 ms | Client error rate |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 20 | 3.16 | 314.93 | 339.87 | 371.53 | 0% |
+| 5 | 20 | 12.51 | 315.85 | 671.17 | 674.72 | 0% |
+| 10 | 20 | 22.29 | 316.86 | 594.65 | 599.84 | 0% |
+| 20 | 20 | 1.96 | 521.57 | 10,193.38 | 10,194.10 | 35% |
+
+Cloud Run request logs recorded 82 post-rollout requests, all routed to the new
+revision and all ultimately returning HTTP 200. The seven concurrency-20 client
+failures were timeouts; server-side maximum request latency was 20.61 seconds.
+This demonstrates a high-concurrency readiness bottleneck and is not a capacity
+claim for the authenticated generation path.

@@ -23,13 +23,14 @@ an authenticated user.
 
 ## Verification status
 
-The currently serving backend is revision `bac-exercise-generator-00019-xn4`
-from commit `125c6d1`; it predates the production-hardening changes on the
-`codex/production-readiness` branch. The live health endpoint is verified, as
-is the 30-query Vertex/Pinecone retrieval benchmark. Structured JSON request
-events, `/ready`, explicit provider timeouts, Redis fail-closed behavior, the
-expanded CI gates, and the 30-case generation-quality dataset are implemented
-and locally tested on the branch but are not yet deployed.
+The currently serving backend is revision `bac-exercise-generator-00020-5cm`
+from main commit `d6b021d`, with image digest
+`sha256:c6b7ed18fce27e85b281e70fb1e942ca85908c00d48647cd493f55c72c03eb02`.
+It receives 100% of production traffic. `/health` and `/ready` both returned
+HTTP 200 on 2026-09-25, and correlated structured JSON request events were
+observed from the serving revision. The previous revision is retained for
+rollback. Authenticated end-to-end generation still requires a disposable
+Firebase test token and is not claimed as reverified in this audit.
 
 See [Production Readiness](PRODUCTION_READINESS.md),
 [Failure Modes](docs/PRODUCTION_FAILURE_MODES.md),
