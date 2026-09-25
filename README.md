@@ -21,6 +21,21 @@ an authenticated user.
 - Next.js frontend on Cloud Run with production CORS restrictions
 - GitHub Actions CI/CD and Google Secret Manager
 
+## Verification status
+
+The currently serving backend is revision `bac-exercise-generator-00019-xn4`
+from commit `125c6d1`; it predates the production-hardening changes on the
+`codex/production-readiness` branch. The live health endpoint is verified, as
+is the 30-query Vertex/Pinecone retrieval benchmark. Structured JSON request
+events, `/ready`, explicit provider timeouts, Redis fail-closed behavior, the
+expanded CI gates, and the 30-case generation-quality dataset are implemented
+and locally tested on the branch but are not yet deployed.
+
+See [Production Readiness](PRODUCTION_READINESS.md),
+[Failure Modes](docs/PRODUCTION_FAILURE_MODES.md),
+[Load Test Results](LOAD_TEST_RESULTS.md), and [Cost Model](docs/COST_MODEL.md)
+for evidence and remaining limitations.
+
 ## Production generation flow
 
 ```text
@@ -165,15 +180,20 @@ GEMINI_PROJECT=bac-exercise-generator-prod
 GEMINI_LOCATION=europe-west1
 GEMINI_MODEL=gemini-2.5-flash
 GEMINI_MAX_OUTPUT_TOKENS=8192
+GEMINI_TIMEOUT_SECONDS=60
 EMBEDDING_MODEL=gemini-embedding-001
 EMBEDDING_DIMENSIONS=768
+EMBEDDING_TIMEOUT_SECONDS=15
 PINECONE_INDEX_NAME=bac-exercises-rag
 PINECONE_NAMESPACE=bac-exercises
+PINECONE_TIMEOUT_SECONDS=10
 RAG_ENABLED=true
 RAG_FAIL_OPEN=true
 RERANKER_ENABLED=false
 CODE_RUNNER_PROVIDER=sandbox
 RATE_LIMITER_PROVIDER=redis
+REDIS_TIMEOUT_SECONDS=2
+SANDBOX_TIMEOUT_SECONDS=20
 ```
 
 `DATABASE_URL` and `PINECONE_API_KEY` are injected from Secret Manager. Secret
@@ -186,12 +206,15 @@ python -m compileall -q src scripts
 mypy src tests
 ruff check src tests alembic scripts
 python -m pytest
+cd frontend && npm ci && npm run lint && npm run test -- --run && npm run build
 ```
 
-On pushes to `main`, GitHub Actions runs migrations and the full Python quality
-gate, builds an immutable SHA-tagged image, updates and executes the Cloud Run
-migration job, then deploys the backend with the gen2 execution environment,
-VPC access, Redis, production CORS, Secret Manager, and `sandboxLauncher`.
+GitHub Actions runs backend migrations, compile/static/test gates, a backend
+Docker build, and frontend lint/test/build checks. On pushes to `main`, it also
+builds an immutable SHA-tagged backend image, executes the Cloud Run migration
+job, and deploys the backend with the gen2 execution environment, VPC access,
+Redis, production CORS, Secret Manager, and `sandboxLauncher`. This repository
+does not currently deploy the frontend through that workflow.
 
 ## Project structure
 
