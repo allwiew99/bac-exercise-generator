@@ -47,7 +47,9 @@ class JsonFormatter(logging.Formatter):
             ).isoformat(),
             "severity": record.levelname,
             "logger": record.name,
-            "message": record.getMessage(),
+            "message": str(
+                getattr(record, "event", "unstructured_log")
+            ),
             "request_id": getattr(record, "request_id", get_request_id()),
         }
 

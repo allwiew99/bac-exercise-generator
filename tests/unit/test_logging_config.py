@@ -64,3 +64,20 @@ def test_log_event_drops_unknown_and_sensitive_fields() -> None:
     assert record.model == "gemini-2.5-flash"
     assert not hasattr(record, "raw_token")
     assert not hasattr(record, "prompt")
+
+
+def test_json_formatter_redacts_unstructured_interpolated_messages() -> None:
+    record = logging.LogRecord(
+        name="test.logger",
+        level=logging.WARNING,
+        pathname=__file__,
+        lineno=10,
+        msg="validation failed: %s",
+        args=("hidden-test-secret",),
+        exc_info=None,
+    )
+
+    rendered = JsonFormatter().format(record)
+
+    assert "hidden-test-secret" not in rendered
+    assert '"message":"unstructured_log"' in rendered

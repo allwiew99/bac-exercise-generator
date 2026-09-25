@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from google.genai import errors
+from httpx import ReadTimeout, Request
 
 from bac_generator.ai.gemini_client import GeminiClient
 from bac_generator.core.exceptions import LLMResponseError
@@ -117,3 +118,25 @@ def test_gemini_api_failure_enters_existing_generation_retry_contract(
 
     with pytest.raises(LLMResponseError, match="Gemini request failed.*429"):
         client.generate_exercise("prompt")
+
+
+@patch("bac_generator.ai.gemini_client.genai.Client")
+def test_gemini_transport_failure_is_mapped_to_safe_error(
+    client_factory: Mock,
+) -> None:
+    client_factory.return_value.models.generate_content.side_effect = ReadTimeout(
+        "private-provider-detail",
+        request=Request("POST", "https://provider.invalid"),
+    )
+    client = GeminiClient(
+        project="project-id",
+        location="us-central1",
+        model="gemini-2.5-flash",
+        max_output_tokens=8192,
+    )
+
+    with pytest.raises(LLMResponseError) as exc_info:
+        client.generate_exercise("prompt")
+
+    assert "provider was unavailable" in str(exc_info.value)
+    assert "private-provider-detail" not in str(exc_info.value)

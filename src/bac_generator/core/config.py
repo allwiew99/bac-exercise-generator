@@ -49,6 +49,7 @@ class Settings(BaseSettings):
 
     redis_timeout_seconds: int = Field(default=2, gt=0)
     sandbox_timeout_seconds: int = Field(default=20, gt=0)
+    readiness_timeout_seconds: float = Field(default=3.0, gt=0)
 
     rag_enabled: bool = True
     rag_fail_open: bool = True

@@ -32,8 +32,9 @@ class SubmissionRepository:
 
         self.session.add(submission)
         try:
-            await self.session.commit()
+            await self.session.flush()
             await self.session.refresh(submission)
+            await self.session.commit()
         except Exception:
             await self.session.rollback()
             raise

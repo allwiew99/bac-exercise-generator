@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from bac_generator.core.logging_config import log_event
 from bac_generator.core.request_context import (
@@ -59,8 +59,13 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
                 exception_type="unhandled_exception",
                 safe_error_message="Request processing failed.",
             )
-            reset_request_id(token)
-            raise
+            response = JSONResponse(
+                status_code=500,
+                content={
+                    "error": "internal_server_error",
+                    "detail": "Request processing failed.",
+                },
+            )
 
         log_event(
             logger,
@@ -73,8 +78,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
                 2,
             ),
         )
-        reset_request_id(token)
-
         response.headers["X-Request-ID"] = request_id
+        reset_request_id(token)
 
         return response

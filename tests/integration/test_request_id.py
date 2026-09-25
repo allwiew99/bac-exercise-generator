@@ -7,6 +7,11 @@ from bac_generator.main import app
 client = TestClient(app)
 
 
+@app.get("/_test/unhandled-error", include_in_schema=False)
+def unhandled_error() -> None:
+    raise RuntimeError("provider-secret-value")
+
+
 def test_request_id_is_preserved_when_provided() -> None:
     request_id = "test-request-123"
 
@@ -52,3 +57,18 @@ def test_oversized_request_id_is_replaced() -> None:
 
     assert response.status_code == 200
     UUID(response.headers["X-Request-ID"])
+
+
+def test_unhandled_error_is_contained_and_correlated() -> None:
+    response = client.get(
+        "/_test/unhandled-error",
+        headers={"X-Request-ID": "failure-request-123"},
+    )
+
+    assert response.status_code == 500
+    assert response.headers["X-Request-ID"] == "failure-request-123"
+    assert response.json() == {
+        "error": "internal_server_error",
+        "detail": "Request processing failed.",
+    }
+    assert "provider-secret-value" not in response.text

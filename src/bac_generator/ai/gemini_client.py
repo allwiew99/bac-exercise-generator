@@ -1,5 +1,6 @@
 from google import genai
 from google.genai import errors, types
+from httpx import TransportError
 
 from bac_generator.core.exceptions import LLMResponseError
 from bac_generator.schemas.exercise import ExerciseResponse
@@ -58,6 +59,10 @@ class GeminiClient:
         except errors.APIError as exc:
             raise LLMResponseError(
                 f"Gemini request failed with API status {exc.code}."
+            ) from exc
+        except TransportError as exc:
+            raise LLMResponseError(
+                "Gemini request failed because the provider was unavailable."
             ) from exc
 
         content = response.text

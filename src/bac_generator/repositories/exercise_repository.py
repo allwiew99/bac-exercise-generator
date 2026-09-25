@@ -29,8 +29,9 @@ class ExerciseRepository:
 
         self.session.add(exercise)
         try:
-            await self.session.commit()
+            await self.session.flush()
             await self.session.refresh(exercise)
+            await self.session.commit()
         except Exception:
             await self.session.rollback()
             raise

@@ -378,7 +378,7 @@ def test_generate_exercise_returns_exercise_generation_error() -> None:
 
         assert response.status_code == 500
         assert body["error"] == "exercise_generation_error"
-        assert "Failed to generate exercise." in body["detail"]
+        assert body["detail"] == "Exercise generation failed."
 
     finally:
         app.dependency_overrides.clear()
@@ -402,7 +402,9 @@ def test_generate_exercise_returns_llm_response_error() -> None:
 
         assert response.status_code == 502
         assert body["error"] == "llm_response_error"
-        assert "Invalid response from LLM." in body["detail"]
+        assert body["detail"] == (
+            "The generation provider returned an unusable response."
+        )
 
     finally:
         app.dependency_overrides.clear()
@@ -427,7 +429,7 @@ def test_generate_exercise_returns_validation_error() -> None:
 
         assert response.status_code == 422
         assert body["error"] == "exercise_validation_error"
-        assert "does not match requested topic" in body["detail"]
+        assert body["detail"] == "Generated exercise failed validation."
 
     finally:
         app.dependency_overrides.clear()
@@ -711,9 +713,8 @@ def test_get_official_solution_returns_403_without_submission() -> None:
 
         assert response.status_code == 403
         assert body["error"] == "solution_locked"
-        assert (
-            "Official solution is available only after submitting a solution."
-            in body["detail"]
+        assert body["detail"] == (
+            "Submit a solution before viewing the official solution."
         )
 
     finally:
@@ -783,10 +784,7 @@ def test_generate_exercise_returns_429_when_rate_limited(
 
         assert response.status_code == 429
         assert body["error"] == "rate_limit_exceeded"
-        assert (
-            "Too many exercise generation requests"
-            in body["detail"]
-        )
+        assert body["detail"] == "Too many requests. Please try again shortly."
         assert any(
             getattr(record, "event", None) == "rate_limited"
             for record in caplog.records
@@ -814,7 +812,7 @@ def test_submit_solution_returns_429_when_rate_limited() -> None:
 
         assert response.status_code == 429
         assert body["error"] == "rate_limit_exceeded"
-        assert "Too many submission requests" in body["detail"]
+        assert body["detail"] == "Too many requests. Please try again shortly."
 
     finally:
         app.dependency_overrides.clear()

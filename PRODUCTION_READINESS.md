@@ -6,31 +6,31 @@ Evidence snapshot: 2026-09-25. Status vocabulary is restricted to `VERIFIED LIVE
 |---|---|---|---|
 | Application architecture | VERIFIED | Route/service/repository/provider boundaries inspected; 224 non-DB tests currently pass | Some dependency construction remains route-module based rather than lifespan-managed |
 | Authentication | VERIFIED | Firebase bearer validation has safe 401 tests and no raw verifier exception logging | Live authenticated probe needs a disposable Firebase token |
-| Authorization | VERIFIED | Repository and API tests scope exercise/submission/solution access by user and return 404 across ownership boundaries | No formal external penetration test |
+| Authorization | VERIFIED | Repository tests verify cross-user lookups return no exercise, submission, or solution; API handlers pass the authenticated UID into those scoped lookups | Explicit API-level user-A/user-B fixtures and an external penetration test remain absent |
 | Secrets | VERIFIED | `.env` files are ignored; tracked-file inventory contains only examples; `.dockerignore` excludes local secrets | GitHub-native secret scanning enablement not verified |
-| Database | PARTIAL | Async sessions, user-scoped repositories, explicit rollback tests | Final fresh-DB rerun blocked because local Docker daemon became unavailable |
+| Database | PARTIAL | Async sessions, user-scoped repositories, flush/refresh-before-commit ordering, and explicit rollback tests | Final fresh-DB rerun blocked because local Docker daemon became unavailable |
 | Migrations | VERIFIED | All four Alembic migrations upgraded from an empty PostgreSQL 16 database earlier in this audit | Not rerun after Docker daemon loss; no downgrade guarantee |
 | Redis | VERIFIED | Explicit 2 s connect/read timeout; provider selection tests | Live Redis outage was not induced |
 | Rate limiting | VERIFIED | Distributed limits are 10/60 s generation and 30/60 s submission; 429 tests pass; Redis outage fails closed with safe 503 | Atomic fixed-window semantics, not sliding-window fairness |
 | RAG ingestion | VERIFIED | 317-document corpus hash and deterministic ingestion artifacts remain unchanged | Source-PDF acquisition is outside CI |
 | RAG retrieval | VERIFIED LIVE | Live Vertex/Pinecone 30-query run succeeded 30/30 on 2026-09-25 | Provider availability remains external |
 | RAG evaluation | VERIFIED LIVE | Recall@5 1.0000, MRR@5 1.0000, nDCG@5 0.9946, Recall@8 1.0000; mean/p95 retrieval 826.4/1430.4 ms | Golden set has 30 queries and is not a complete domain proof |
-| LLM generation | PARTIAL | Schema validation, bounded six-attempt flow, stable invalid-output error, 60 s transport timeout | Current branch is not deployed; live generation not rerun in this audit |
+| LLM generation | PARTIAL | Schema validation, bounded six-attempt flow, stable invalid-output/transport errors, 60 s transport timeout | Current branch is not deployed; live generation not rerun in this audit |
 | Generation evaluation | PARTIAL | Versioned 30-case, 10-topic, three-difficulty dataset and loader tests | Dataset has not been executed safely because Docker/local DB and disposable auth were unavailable; no metrics fabricated |
 | Validation | VERIFIED | Schema, topic/difficulty, test-count, novelty, compile, runtime, and output tests pass | Automated checks cannot prove full semantic correctness |
 | Sandbox | PARTIAL | No-egress command contract, outer 20 s bound, per-test 2 s execution bound, compilation/timeout tests | Cloud Run sandbox isolation not re-exercised live |
-| Failure handling | VERIFIED | Failure matrix plus deterministic auth, validation, rate-limit, Redis, RAG, sandbox, and rollback tests | Some provider-SDK transport errors are covered through abstractions, not real outages |
-| Timeouts | VERIFIED | Gemini 60 s, embedding 15 s, Pinecone 10 s, Redis 2 s, sandbox 20 s, program 2 s | PostgreSQL statement timeout is not explicitly configured |
+| Failure handling | VERIFIED | Failure matrix plus deterministic auth, validation, Gemini transport, rate-limit, Redis, RAG, sandbox, and pre-commit rollback tests | Real provider outages were not induced |
+| Timeouts | VERIFIED | Gemini 60 s, embedding 15 s, Pinecone 10 s, Redis 2 s, sandbox 20 s, program 2 s, readiness 3 s overall | PostgreSQL statement timeout outside readiness is not explicitly configured |
 | Retries | PARTIAL | Six-attempt generation/repair ceiling; persistence is not retried | Transient and deterministic LLM failures share one repair budget; no backoff yet |
-| Request correlation | VERIFIED | Valid inbound IDs preserved; malicious/oversized IDs replaced; response header and JSON logs tested | No cross-service trace backend |
-| Structured logging | VERIFIED | Allowlisted JSON formatter and lifecycle/failure events tested | New JSON logs are not deployed or observed live |
+| Request correlation | VERIFIED | Valid inbound IDs preserved; malicious/oversized IDs replaced; even unhandled 500 responses carry the response header | No cross-service trace backend |
+| Structured logging | VERIFIED | Allowlisted JSON formatter redacts unstructured messages; lifecycle/failure events and safe public errors are tested | New JSON logs are not deployed or observed live |
 | Monitoring | VERIFIED LIVE | Cloud Run platform metrics available; health endpoint probed; two alert policies created | No custom stage metrics/dashboard |
 | Alerting | PARTIAL | Enabled policies: sustained 5xx and p95 latency >10 s for five minutes | Project has no notification channels, so alerts cannot notify a person |
 | CI | PARTIAL | Existing last main run 31727584582 passed commit `125c6d1`; branch workflow now adds scripts lint, compile, Docker, and frontend gates | New workflow not yet observed in GitHub CI at this snapshot |
 | CD | VERIFIED LIVE | Main commit `125c6d10de451b4f6514d5d7d90f352d86d543b6` deployed successfully | Current hardening branch is not deployed; frontend deployment is outside this workflow |
 | Containerization | VERIFIED | Baseline Docker build succeeded; `.dockerignore` now excludes secrets/caches | Post-change Docker rebuild blocked by Docker daemon loss |
 | Performance | PARTIAL | Local overhead and live health latency measured at concurrency 1/5/10/20 | No authenticated end-to-end generation latency sample |
-| Load testing | PARTIAL | Reproducible capped harness plus real local/live `/health` measurements in `LOAD_TEST_RESULTS.md` | Four live client timeouts; generation load needs a disposable Firebase token |
+| Load testing | PARTIAL | Reproducible capped harness supports mocked and live POST generation; real local/live `/health` measurements are recorded in `LOAD_TEST_RESULTS.md` | Four live client timeouts; authenticated live generation needs a disposable Firebase token |
 | Cost awareness | PARTIAL | Timestamped model formulas and infrastructure drivers in `docs/COST_MODEL.md` | No measured average token counts or billing export access |
 | Security | PARTIAL | Auth/ownership/CORS/safe-error tests, ignored secrets, Docker context exclusion; production npm audit reports zero vulnerabilities after Next.js 16.3.6 upgrade | No DAST, dependency scanning workflow, or live sandbox escape test |
 | Documentation | VERIFIED | Failure matrix, cost model, load results, architecture, README, and this evidence ledger | Live evidence must be refreshed after deployment |
