@@ -4,12 +4,12 @@ Evidence snapshot: 2026-09-25. Status vocabulary is restricted to `VERIFIED LIVE
 
 | Area | Status | Evidence / verification result | Remaining limitation |
 |---|---|---|---|
-| Application architecture | VERIFIED | Route/service/repository/provider boundaries inspected; 224 non-DB tests currently pass | Some dependency construction remains route-module based rather than lifespan-managed |
+| Application architecture | VERIFIED | Route/service/repository/provider boundaries inspected; final CI passed all 236 tests | Some dependency construction remains route-module based rather than lifespan-managed |
 | Authentication | VERIFIED | Firebase bearer validation has safe 401 tests and no raw verifier exception logging | Live authenticated probe needs a disposable Firebase token |
 | Authorization | VERIFIED | Repository tests verify cross-user lookups return no exercise, submission, or solution; API handlers pass the authenticated UID into those scoped lookups | Explicit API-level user-A/user-B fixtures and an external penetration test remain absent |
 | Secrets | VERIFIED | `.env` files are ignored; tracked-file inventory contains only examples; `.dockerignore` excludes local secrets | GitHub-native secret scanning enablement not verified |
-| Database | PARTIAL | Async sessions, user-scoped repositories, flush/refresh-before-commit ordering, and explicit rollback tests | Final fresh-DB rerun blocked because local Docker daemon became unavailable |
-| Migrations | VERIFIED | All four Alembic migrations upgraded from an empty PostgreSQL 16 database earlier in this audit | Not rerun after Docker daemon loss; no downgrade guarantee |
+| Database | VERIFIED | Async sessions, user-scoped repositories, flush/refresh-before-commit ordering, rollback tests, and PostgreSQL integration tests passed in final CI | No production failover exercise |
+| Migrations | VERIFIED | Final CI upgraded all four Alembic migrations from an empty PostgreSQL service | No downgrade guarantee |
 | Redis | VERIFIED | Explicit 2 s connect/read timeout; provider selection tests | Live Redis outage was not induced |
 | Rate limiting | VERIFIED | Distributed limits are 10/60 s generation and 30/60 s submission; 429 tests pass; Redis outage fails closed with safe 503 | Atomic fixed-window semantics, not sliding-window fairness |
 | RAG ingestion | VERIFIED | 317-document corpus hash and deterministic ingestion artifacts remain unchanged | Source-PDF acquisition is outside CI |
@@ -26,9 +26,9 @@ Evidence snapshot: 2026-09-25. Status vocabulary is restricted to `VERIFIED LIVE
 | Structured logging | VERIFIED | Allowlisted JSON formatter redacts unstructured messages; lifecycle/failure events and safe public errors are tested | New JSON logs are not deployed or observed live |
 | Monitoring | VERIFIED LIVE | Cloud Run platform metrics available; health endpoint probed; two alert policies created | No custom stage metrics/dashboard |
 | Alerting | PARTIAL | Enabled policies: sustained 5xx and p95 latency >10 s for five minutes | Project has no notification channels, so alerts cannot notify a person |
-| CI | PARTIAL | Existing last main run 31727584582 passed commit `125c6d1`; branch workflow now adds scripts lint, compile, Docker, and frontend gates | New workflow not yet observed in GitHub CI at this snapshot |
+| CI | VERIFIED | Branch run `36117487414` passed migrations, Ruff, mypy, 236 backend tests, compileall, backend Docker build, frontend lint, 57 tests, and production build | GitHub warns that current action releases rely on its temporary Node 24 compatibility mode |
 | CD | VERIFIED LIVE | Main commit `125c6d10de451b4f6514d5d7d90f352d86d543b6` deployed successfully | Current hardening branch is not deployed; frontend deployment is outside this workflow |
-| Containerization | VERIFIED | Baseline Docker build succeeded; `.dockerignore` now excludes secrets/caches | Post-change Docker rebuild blocked by Docker daemon loss |
+| Containerization | VERIFIED | Final branch Docker build succeeded in CI; `.dockerignore` excludes secrets/caches | Image is a CI-local tag and was not pushed to Artifact Registry |
 | Performance | PARTIAL | Local overhead and live health latency measured at concurrency 1/5/10/20 | No authenticated end-to-end generation latency sample |
 | Load testing | PARTIAL | Reproducible capped harness supports mocked and live POST generation; real local/live `/health` measurements are recorded in `LOAD_TEST_RESULTS.md` | Four live client timeouts; authenticated live generation needs a disposable Firebase token |
 | Cost awareness | PARTIAL | Timestamped model formulas and infrastructure drivers in `docs/COST_MODEL.md` | No measured average token counts or billing export access |
@@ -49,20 +49,20 @@ Evidence snapshot: 2026-09-25. Status vocabulary is restricted to `VERIFIED LIVE
 ## Verification commands and results
 
 ```text
-python -m compileall -q src scripts                         PASS (virtualenv Python)
-ruff check src tests alembic scripts                       PASS
-mypy src tests                                              PASS (132 source files)
-pytest excluding Docker-dependent repository integration   PASS (224 tests)
-earlier full pytest with isolated PostgreSQL 16             PASS (226 tests)
-frontend npm test                                           PASS (57 tests)
-frontend npm run lint                                       PASS
-frontend npm run build (Next.js 16.3.6)                    PASS
+python -m compileall -q src scripts                         PASS locally and in CI
+ruff check src tests alembic scripts                       PASS locally and in CI
+mypy src tests                                              PASS (132 source files, local and CI)
+pytest excluding Docker-dependent repository integration   PASS locally (230 tests)
+full pytest with PostgreSQL service                         PASS in CI (236 tests)
+frontend npm test                                           PASS in CI (57 tests)
+frontend npm run lint                                       PASS in CI
+frontend npm run build (Next.js 16.3.6)                    PASS in CI
 npm audit --omit=dev                                        PASS (0 production vulnerabilities)
-baseline Docker build                                       PASS, digest sha256:b69a42f9...
-fresh alembic upgrade head (PostgreSQL 16)                 PASS earlier in audit
+backend Docker build                                        PASS in final CI
+fresh alembic upgrade head (PostgreSQL service)            PASS in final CI
 live retrieval evaluation                                   PASS, 30/30
 ```
 
 ## Evidence boundaries
 
-The 226-test full run, fresh migration, and baseline Docker build occurred before the Docker daemon disappeared. After the latest documentation/CI changes, the 224 tests not requiring a real PostgreSQL instance, Ruff, mypy, frontend lint/tests/build, and production dependency audit were rerun. Those states are deliberately not conflated.
+Final evidence is GitHub Actions run `36117487414` for commit `19d05af`: all backend and frontend gates passed, including a fresh PostgreSQL migration and backend image build. Local Docker remained unavailable, so the CI-built image was not assigned a registry digest or run locally. Those states are deliberately not conflated.
